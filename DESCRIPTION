@@ -1,0 +1,19 @@
+Package: dgrGlm
+Title: Regression logistic binary tools
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Saliou",
+           family = "NDAO",
+           role = c("aut", "cre"),
+           email = "salioundao21@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: This package allows to do binary logistic regression with the gradient descent algorithm for parameters optimization.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Imports: 
+    plyr,
+    rlang,
+    stats
