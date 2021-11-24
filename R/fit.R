@@ -4,7 +4,6 @@
 #'
 #' @param formule allows you to define the target variable and predictor variables
 #' @param data the data source containing all the variables specified in the formula
-#' @param mode The mode of updating the coefficients of the model (BATCH(default), MINI_BATCH and ONLINE)
 #' @param leaning_rate is the learning rate that controls the magnitude of the vector update.
 #' @param max_iter is the number of iterations.
 #' @param tolerance an additional parameter which specifies the minimum movement allowed for each iteration
@@ -19,9 +18,10 @@
 #' @examples
 #' \dontrun{
 #'  fit(formule, data)
+#'  fit(formule, data, batch_size=10)
 #' }
-fit <- function(formule, data, mode="BATCH", leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=1){
-
+fit <- function(formule, data, leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=1){
+  # Controle de saisie utilisateur
   if(!is.formula(formule)){
     stop("formula must be of type formula")
   }
@@ -29,6 +29,23 @@ fit <- function(formule, data, mode="BATCH", leaning_rate=0.1, max_iter=100, tol
   if(!is.data.frame(data)){
     stop("The data source must be a data frame")
   }
+
+  if (leaning_rate <= 0){
+    stop("'learn_rate' must be greater than zero")
+  }
+
+  if (tolerance <= 0){
+    stop("'tolerance' must be greater than zero")
+  }
+
+  if (max_iter <= 0){
+    stop("'max_iter' must be greater than zero")
+  }
+
+  if( (batch_size <=  0) || (batch_size > dim(X)[1]-1)){
+    stop("'Batch size' must be between 1 and nbObs-1 ")
+  }
+
   f = formula(formule)
   colonne_names = colnames(data)
   for (v in all.vars(f)){
@@ -47,12 +64,15 @@ fit <- function(formule, data, mode="BATCH", leaning_rate=0.1, max_iter=100, tol
   X = as.matrix(X)
   y = as.vector(y)
   instance <- list()
-  if(mode=="BATCH"){
-    instance$res <- grad_descent_batch(X,y,theta,leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
-  } else if(mode == "MINI_BATCH"){
-    instance$res <- global_grad_descent(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+  if(is.na(batch_size)){
+    # Mode Batch
+    instance$res <- dg_batch_seq(X,y,theta,leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+  } else if(batch_size == 1){
+    # Mode Online
+    instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
   }else{
-    instance$res <- global_grad_descent(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+    # Mode Mini Batch
+    instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
   }
   class(instance) <- "modele"
   return(instance)

@@ -17,16 +17,7 @@
 #'   gradient(X,y,theta)
 #'   gradient(X,y,theta, leaning_rate=0.1, max_iter=100, tolerance=1e-04)
 #' }
-grad_descent_batch<- function(X,y,theta, leaning_rate=0.1, max_iter=100, tolerance=1e-04){
-  if (leaning_rate <= 0){
-    stop("'learn_rate' must be greater than zero")
-  }
-  if (tolerance <= 0){
-    stop("'tolerance' must be greater than zero")
-  }
-  if (max_iter <= 0){
-    stop("'max_iter' must be greater than zero")
-  }
+dg_batch_seq<- function(X,y,theta, leaning_rate, max_iter, tolerance){
   if (dim(X)[1] != length(y)){
     stop("the dimensions of 'x' and 'y' do not match")
   }

@@ -15,7 +15,7 @@
 #' @export
 #' @return this function returns an instance containing:
 #' \itemize{
-#'  \item theta final
+#'  \item final theta
 #'  \item history cost
 #'  \item iteration number
 #'  \item intern iteration number
@@ -25,15 +25,8 @@
 #' \dontrun{
 #'  global_grad_descent(X,y,theta)
 #' }
-global_grad_descent<- function(X,y,theta, batch_size=1, random_state=NA_integer_, leaning_rate=0.1, max_iter=100, tolerance=1e-04){
-  # Controle du taux d'apprentissage
-  if (leaning_rate <= 0){
-    stop("'learn_rate' must be greater than zero")
-  }
-  # Controle de la tolerance
-  if (tolerance <= 0){
-    stop("'tolerance' must be greater than zero")
-  }
+dg_batch_minibatch_online_seq<- function(X,y,theta, batch_size, random_state, leaning_rate, max_iter, tolerance){
+
   # Controle du max iteratons
   if (max_iter <= 0){
     stop("'max_iter' must be greater than zero")
@@ -45,10 +38,6 @@ global_grad_descent<- function(X,y,theta, batch_size=1, random_state=NA_integer_
   # Initialiser le generateur de nombre aleatoire pour rendre reproductible les calculs
   if(!is.na(random_state)){
     set.seed(random_state)
-  }
-  # Setting up and checking the size of minibatches
-  if( (batch_size <=  0) || (batch_size > dim(X)[1]-1)){
-    stop("'Batch size' must be between 1 and nbObs-1 ")
   }
   xy = cbind(X,y)
   #remove NA rows
@@ -76,9 +65,6 @@ global_grad_descent<- function(X,y,theta, batch_size=1, random_state=NA_integer_
       }
       xBatch = xy[start:stop,-ncol(xy)]
       yBatch = xy[start:stop, ncol(xy)]
-      #print(dim(xBatch))
-      # Calcul du vecteur probas
-      PI <- sigmoid(xBatch%*%theta)
       # Calcul du cout
       cost = logLoss(theta, xBatch, yBatch)
       # Historisation de la fonction de cout

@@ -7,7 +7,8 @@
 dgrglm.fit(
   formule,
   data,
-  mode = "BATCH",
+  ncores = 3,
+  mode_compute = "parallel",
   leaning_rate = 0.1,
   max_iter = 100,
   tolerance = 1e-04,
@@ -21,11 +22,13 @@ dgrglm.fit(
 
 \item{data}{the data source containing all the variables specified in the formula}
 
-\item{mode}{The mode of updating the coefficients of the model (BATCH(default), MINI_BATCH and ONLINE)}
+\item{ncores}{parameters representing the number of cores to be used for parallel execution}
 
-\item{leaning_rate}{is the learning rate that controls the magnitude of the vector update.}
+\item{mode_compute}{algorithm mode of execution. thera are "parallel" and "sequentiel"}
 
-\item{max_iter}{is the number of iterations.}
+\item{leaning_rate}{is the learning rate that controls the magnitude of the vector update}
+
+\item{max_iter}{is the number of iterations}
 
 \item{tolerance}{an additional parameter which specifies the minimum movement allowed for each iteration}
 
@@ -43,6 +46,7 @@ This function allows us to create a binary logistic regression model
 }
 \examples{
 \dontrun{
- fit(formule, data)
+ dgrglm.fit(formule, data)
+ dgrglm.fit(formule, data,ncores=3, mode_compute="parallel",)
 }
 }
