@@ -23,48 +23,72 @@
 #'  dgsrow_batch_parallele(X,y,theta,ncores=3)
 #' }
 dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tolerance){
-  # Controle de dimension
+  instance <- list()
+
+  # CONTROL OF DIMENSION
   if (dim(X)[1] != length(y)){
     stop("les dimensions de 'x' et 'y' ne correspondent pas")
   }
-  df <- cbind(y,X)
-  # Decoupage données en ligne
-  data_app = decoupage_ligne(df, (detectCores()-1))
+
+  # ONLINE DATA DECOUPAGE
+  df <- as.data.frame(cbind(y,X))
+  data_group = decoupage_ligne(df,ncores)
+
+  # FUNCTION PERFORMED BY EACH CLUSTER
   task <- function(k){
-    # Sample group for each node
-    app_X<- data_app[data_app$fold == k, -1]
-    app_Y <- data_app[data_app$fold == k, 1]
-    # delete colonne fold
-    app_X$fold = NULL
-    app_Y$fold = NULL
-    grad <- gradient(theta,app_X,as.integer(app_Y))
+    # DECOUPAGE DATA FOR EACH CORE
+    train_X<- data_group[data_group$fold == k, -1]
+    train_Y <- data_group[data_group$fold == k, 1]
+
+    # DELETE COLUMN FOLD
+    train_X$fold = NULL
+    train_Y$fold = NULL
+
+    # CALCUL GRADIENT
+    grad <- gradient(theta,as.matrix(train_X),as.integer(train_Y))
     return(grad)
   }
-  # Instanciation des cluster et export des objets
+
+  # CLUSTER INSTANCIATION AND OBJECTS EXPORT
   cl <- makeCluster(ncores)
   clusterExport(cl, c("theta", "sigmoid","gradient"))
+
+  # INIT HISTORY COST AND ITERATION
   iter <- 0
   cost_vector = c()
+
   while(iter < max_iter){
     iter <- iter + 1
-    # Appel de clusterApply pour paralleliser le calcule des gradients
+    # FOR PARALLELIZE CALCULATION OF GRADIENTS
     res <- clusterApply(cl, x=1:ncores, task)
-    # Aggrégation des gradient
+
+    # AGGREGATES GRADIENTS OF ALL CLUSTERS
     gradient_glob = apply(sapply(res, function(x) x),1,sum)
-    # Mise à jour du theta par le master
+
+    # NEW THETA CALCULATION
     new_theta <- theta - (leaning_rate*gradient_glob)
-    # Controle de convergence
+
+    # CONTROL CONVERGENCE
     if (sum(abs(theta-new_theta)) < tolerance){
       break
     }
+
+    # UPDATE THETA
     theta = new_theta
-    # Calcul du cout
-    cost = logLoss(theta, X, y)
-    # Historisation de la fonction de cout
+    # COST CALCULATION
+    cost = logLoss(theta, as.matrix(X), y)
+    # HISTORIZATION OF THE COST FUNCTION
     cost_vector = c(cost_vector, cost)
-    # Envoit du nouveau theta au master
+
+    # SEND NEW THETA TO CORE OR CLUSTER
     clusterExport(cl, "theta")
   }
   stopCluster(cl)
-  return(list(theta_final = theta, history_cost = cost_vector, nbIter=iter))
+  #___________________________________
+  instance$theta <- theta
+  instance$history_cost<- cost_vector
+  instance$nbIter <- iter
+  class(instance) <- "GDS_BATCH_PARALEL"
+
+  return(instance)
 }

@@ -19,4 +19,5 @@ Imports:
     parallel,
     plyr,
     rlang,
-    stats
+    stats,
+    utils

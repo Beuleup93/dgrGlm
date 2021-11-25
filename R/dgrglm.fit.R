@@ -22,14 +22,14 @@
 #' @examples
 #' \dontrun{
 #'  dgrglm.fit(formule, data)
-#'  dgrglm.fit(formule, data,ncores=3, mode_compute="parallel",)
+#'  dgrglm.fit(formule, data,ncores=3, mode_compute="parallel")
 #' }
-dgrglm.fit <- function(formule, data, ncores=3, mode_compute="parallel", leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=1, centering = FALSE){
+dgrglm.fit <- function(formule, data, ncores=3, mode_compute="parallel", leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=102, centering = FALSE){
 
-  # Objet S3
+  # OBJECT S3
   instance <- list()
 
-  # Controle de saisie utilisateur
+  # CONTROL OF USER INPUTS
   if(!is.formula(formule)){
     stop("formula must be of type formula")
   }
@@ -50,15 +50,22 @@ dgrglm.fit <- function(formule, data, ncores=3, mode_compute="parallel", leaning
     stop("'max_iter' must be greater than zero")
   }
 
-  if( (batch_size <=  0) || (batch_size > dim(X)[1]-1)){
-    stop("'Batch size' must be between 1 and nbObs-1 ")
+  # CONTROL BATCH SIZE FOR EACH COMPUTE MODE
+  if((mode_compute=="parallel") && (!is.na(batch_size))){
+    if((dim(data)[1] %% ncores == 0) && ((batch_size <=  0) || (batch_size > (dim(data)[1]%/% ncores)))){
+      stop("'Batch size' must be between 1 and nbObs for each core ")
+    }
+  } else if((mode_compute=="sequentiel") && (!is.na(batch_size))){
+    if(((batch_size <=  0) || (batch_size > (dim(data)[1])))){
+      stop("'Batch size' must be between 1 and length of data ")
+    }
   }
 
   if(ncores<=0 || ncores>=detectCores()){
     ncores = detectCores()-1
   }
 
-  # Controle de correspondance des colonnes
+  # COLUMN MATCHING CONTROL BETWEEN DATA AND FORMULA
   f = formula(formule)
   colonne_names = colnames(data)
   for (v in all.vars(f)){
@@ -67,53 +74,70 @@ dgrglm.fit <- function(formule, data, ncores=3, mode_compute="parallel", leaning
       stop("Check the concordance between the columns of the formula and those of the data source")
     }
   }
-  # Reconstituter le dataframe à partir du formula
+  # RECONSITUTE DATAFRAME FROM THE FORMULA
   df = model.frame(formula = as.formula(formule), data = data)
-  # sauvegarder les variables explicatives
+
+  # SHUFLE DATA
+  if(!is.null(random_state)){
+    set.seed(seed = random_state)
+    rows <- sample(nrow(df))
+    df <- df[rows, ]
+  }
+  # REMOVE NA in DATASET
+  df <- na.omit(df)
+
+  # SAVE EXPLICATIVES VARIABLE IN INSTANCE
   instance$explicatives = colnames(df[,-1])
-  # variables explicatives
+
+  # TARGET AND EXPLICATIVES VARIABLES
+  y = df[,1]
   X = df[,-1]
-  # centrage reduction des variables explicatives
+
+  # CENTERING AND REDUCTION EXPLICATIVES VARIABLE
   if(centering == TRUE){
     X = centering.reduction(X)
   }
-  # Creation de la colonne de biais
+
+  # CREATE BIAIS COLUMN
   X$biais = 1
-  # Variable cible
-  y = df[,1]
-  instance$y = y
-  # Initialisation des parametres du modele
-  theta = runif(ncol(X))
+
+  # CONVERT DATA
   X = as.matrix(X)
   y = as.vector(y)
+
+  # INIT COEFS MODEL
+  theta = runif(ncol(X))
+
   if((mode_compute == 'parallel') && (!is.null(ncores))){
     if(is.na(batch_size)){
-      # Mode Batch parallel
+      # MODE BATCH PARALLEL
       instance$res <- dgsrow_batch_parallele(X,y,theta,ncores, leaning_rate, max_iter, tolerance)
     } else if(batch_size == 1){
-      # Mode Online parallel
+      # MODE ONLINE PARALLEL
       instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size, leaning_rate, max_iter, tolerance)
     }else{
-      # Mode Mini Batch parallel
+      # MODE MINI BATCH PARALLEL
       instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size, leaning_rate, max_iter, tolerance)
     }
+
   }else if(mode_compute == 'sequentiel'){
     if(is.na(batch_size)){
-      # Mode Batch sequentiel
+      # MODE BATCH SEQUENTIEL
       instance$res <- dg_batch_seq(X,y,theta,leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
     } else if(batch_size == 1){
-      # Mode Online sequentiel
+      # MODE ONLINE SEQUENTIEL
       instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
     }else{
-      # Mode Mini Batch sequentiel
+      # MODE MINI BATCH SEQUENTIEL
       instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
     }
   }
 
   instance$probas <- sigmoid(X %*% instance$res$theta)
   instance$binary_predict <- binary_predict(instance$probas)
-  instance$y_val = data.frame(TrueY=instance$y, Ypredict=instance$binary_predict, Probas=instance$probas)
+  instance$y_val = data.frame(TrueY=y, Ypredict=instance$binary_predict, Probas=instance$probas)
   instance$err_rate=mean(instance$y_val$TrueY != instance$y_val$Ypredict)
+  instance$metric <- metrics(instance$probas,y,ncol(X))
   class(instance) <- "modele"
   return(instance)
 }

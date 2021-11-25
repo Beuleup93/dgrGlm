@@ -10,6 +10,7 @@
 #'  decoupage_ligne(data,ncores)
 #' }
 decoupage_ligne <- function(data, ncores){
+  data <- as.data.frame(data)
   set.seed(1)
   random <- sample(1:nrow(data), replace = FALSE, nrow(data))
   data$fold <- ceiling(random/(nrow(data)/ncores))

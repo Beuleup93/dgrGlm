@@ -26,61 +26,50 @@
 #'  global_grad_descent(X,y,theta)
 #' }
 dg_batch_minibatch_online_seq<- function(X,y,theta, batch_size, random_state, leaning_rate, max_iter, tolerance){
+  instance <- list()
 
-  # Controle du max iteratons
-  if (max_iter <= 0){
-    stop("'max_iter' must be greater than zero")
-  }
-  # Controle de dimension
+  # CONTROL OF MATCH DIMENSION
   if (dim(X)[1] != length(y)){
     stop("the dimensions of 'x' and 'y' do not match")
   }
-  # Initialiser le generateur de nombre aleatoire pour rendre reproductible les calculs
-  if(!is.na(random_state)){
-    set.seed(random_state)
-  }
-  xy = cbind(X,y)
-  #remove NA rows
-  X <- na.omit(X)
-  y <- na.omit(y)
-  # Vecteur de cout
+  yx = as.data.frame(cbind(y,X))
+
+  # INIT COST HISTORISATION AND ITERATIONS
   cost_vector = c()
-  m = nrow(X)
-  # controle de convergence
-  converge = FALSE
   iter <- 0
   nb_iter_ <- 0
-  instance <- list()
-  while((iter < max_iter) && (converge == FALSE) ){
-    #iteration suivante
+
+  while(iter < max_iter ){
     iter <- iter + 1
-    # SHUFLE the dataset
-    rows <- sample(nrow(xy))  # Melanger les indices du dataframe xy
-    xy <- xy[rows, ] # Utiliser ces indices pour reorganiser le dataframe
-    # MINI BATCH
+
+    # BATCH, MINI BATCH OR ONLINE
     for (start in seq(from=1, to=dim(X)[1], batch_size)){
-      stop = start + batch_size
+      stop = start + (batch_size-1)
       if(stop > dim(X)[1]){
         break
       }
-      xBatch = xy[start:stop,-ncol(xy)]
-      yBatch = xy[start:stop, ncol(xy)]
-      # Calcul du cout
-      cost = logLoss(theta, xBatch, yBatch)
-      # Historisation de la fonction de cout
+      # DATA FOR MINI BATCH IN ITERIATION I
+      xBatch = yx[start:stop,-1]
+      yBatch = yx[start:stop, 1]
+
+      # HISTORY COST
+      cost = logLoss(theta, as.matrix(xBatch), yBatch)
       cost_vector = c(cost_vector, cost)
-      # conteur permettant de suivre le nomre d'element de history
       nb_iter_ = nb_iter_ +1
-      # Mise à jour du theta
-      grd = gradient(theta, xBatch, yBatch)
+
+      # GRADIENT CALCULATION AND CALCUL NEW THETA
+      grd = gradient(theta, as.matrix(xBatch), yBatch)
       new_theta = theta - leaning_rate*grd
+
+      # CONTROL OF CONVERGENCE
       if (sum(abs(new_theta - theta)) < tolerance){
-        converge <- TRUE
         break
       }
+      # UPDATE THETA
       theta = new_theta
     }
   }
+  #________________________________________
   instance$theta <- theta
   instance$history_cost <- cost_vector
   instance$nb_iter_while <- iter

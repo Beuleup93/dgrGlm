@@ -54,7 +54,7 @@ dgsrow_minibatch_parallle2<- function(X,y,theta, batch_size, ncores, leaning_rat
     for (start in seq(from=1, to=dim(X)[1], batch_size)){
       iter_for<- iter_for + 1
       stop = start + (batch_size-1)
-      if(stop >= dim(X)[1]){
+      if(stop > dim(X)[1]){
         stop = dim(X)[1]
         break
       }
@@ -71,7 +71,7 @@ dgsrow_minibatch_parallle2<- function(X,y,theta, batch_size, ncores, leaning_rat
         break
       }
       theta <- new_theta
-      cost = logLoss(theta, xBatch, yBatch)
+      cost = logLoss(theta, as.matrix(xBatch), yBatch)
       cost_vector = c(cost_vector, cost)
       clusterExport(cl, "theta")
     }

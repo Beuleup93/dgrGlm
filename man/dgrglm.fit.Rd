@@ -13,7 +13,7 @@ dgrglm.fit(
   max_iter = 100,
   tolerance = 1e-04,
   batch_size = NA,
-  random_state = 1,
+  random_state = 102,
   centering = FALSE
 )
 }
@@ -47,6 +47,6 @@ This function allows us to create a binary logistic regression model
 \examples{
 \dontrun{
  dgrglm.fit(formule, data)
- dgrglm.fit(formule, data,ncores=3, mode_compute="parallel",)
+ dgrglm.fit(formule, data,ncores=3, mode_compute="parallel")
 }
 }
