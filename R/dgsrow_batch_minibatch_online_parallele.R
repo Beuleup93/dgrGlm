@@ -67,7 +67,7 @@ dgs_minibatch_online_parallle<- function(X, y, theta, ncores, batch_size, leanin
   }
   # CLUSTER INSTANCIATION AND OBJECTS EXPORT
   cl <- makeCluster(ncores)
-  clusterExport(cl, c("theta","sigmoid","gradient"))
+  clusterExport(cl, c("theta","sigmoid","gradient"),envir=environment())
 
   # INIT HISTORY COST AND ITERATION
   iter <- 0
@@ -95,7 +95,7 @@ dgs_minibatch_online_parallle<- function(X, y, theta, ncores, batch_size, leanin
     cost_vector = c(cost_vector, cost)
 
     # SEND THETA TO CORE OR CLUSTER FOR OTHER GRADIENT CALCULATION
-    clusterExport(cl, "theta")
+    clusterExport(cl, "theta",envir=environment())
   }
   stopCluster(cl)
   #___________

@@ -36,7 +36,7 @@ dgsrow_minibatch_parallle2<- function(X,y,theta, batch_size, ncores, leaning_rat
   cost_vector = c()
   # Paralellisation du calcul de gradient
   cl <- makeCluster(ncores)
-  clusterExport(cl, c("theta","sigmoid","gradient"))
+  clusterExport(cl, c("theta","sigmoid","gradient"),envir=environment())
   start <- 1
   converge <- FALSE
   while((iter_while < max_iter) && (converge==FALSE)){
@@ -73,7 +73,7 @@ dgsrow_minibatch_parallle2<- function(X,y,theta, batch_size, ncores, leaning_rat
       theta <- new_theta
       cost = logLoss(theta, as.matrix(xBatch), yBatch)
       cost_vector = c(cost_vector, cost)
-      clusterExport(cl, "theta")
+      clusterExport(cl, "theta",envir=environment())
     }
   }
   stopCluster(cl)

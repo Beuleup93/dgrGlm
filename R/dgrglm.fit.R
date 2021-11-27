@@ -24,7 +24,7 @@
 #'  dgrglm.fit(formule, data)
 #'  dgrglm.fit(formule, data,ncores=3, mode_compute="parallel")
 #' }
-dgrglm.fit <- function(formule, data, ncores=3, mode_compute="parallel", leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=102, centering = FALSE){
+dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=102, centering = FALSE){
 
   # OBJECT S3
   instance <- list()
@@ -61,7 +61,7 @@ dgrglm.fit <- function(formule, data, ncores=3, mode_compute="parallel", leaning
     }
   }
 
-  if(ncores<=0 || ncores>=detectCores()){
+  if(is.na(ncores) || ncores<=0 || ncores>=detectCores()){
     ncores = detectCores()-1
   }
 

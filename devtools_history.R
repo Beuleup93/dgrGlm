@@ -34,31 +34,27 @@ compare_model<- function(probas_mod1, probas_mod2, y){
   return(list(predProbas = predProbas, PredClass = predClass, models_error = df_err,  toPlot=toPlot))
 }
 
+regression_mutlitclass <- function(X,y,theta){
+
+}
+
 
 # GENERATION DONNÉES LOGISTIQUE
 set.seed(103)
-n <-100
+n <-1000
 p <- 10
 
 theta = runif(p+1) # or theta = runif(7)
 X <- cbind(1,matrix(rnorm(n*p),n,p)) #  6 Variables quantitative
 X1 = matrix(rnorm(n*p),n,p)
 X1 <- as.data.frame(X1)
-X1$biais <- 1
-class(X1)
-class(theta)
 Z <- X %*% theta # combinaison lineare de variable
 fprob <- ifelse(Z<0, exp(Z)/(1+exp(Z)),1/(1+exp(-Z))) # Calcul des probas d'affectation
 y<- rbinom(n,1,fprob)
 data = as.data.frame(cbind(y,X1))
 
-leaning_rate = 0.1
-max_iter = 1000
-tolerance = 1e-04
-batch_size = 10
-batch_size_online = 1
-random_state = 102
-ncores = 3
+multi <- dgrglm.multiclass.fit(Species ~., data=head(iris,n=150), max_iter = 6000, centering = TRUE)
+predict<- dgrglm.multiclass.predict(multi,iris[,-ncol(iris)],type_pred = "CLASS")
 
 
 library(dgrGlm)
@@ -93,6 +89,8 @@ print(system.time(model_batch_parallel <- dgsrow_batch_parallele(X1, y, theta, n
 print(system.time(model_mini_online_batch_parallel <- dgs_minibatch_online_parallle(X1,y,theta,ncores=3,batch_size = 10,leaning_rate=0.05, max_iter=100,tolerance=1e-06)))
 #print(system.time(model_mini_online_batch_parallel <- dgs_minibatch_online_parallle2(X1,y,theta,ncores,batch_size_online,random_state,leaning_rate, max_iter,tolerance)))
 
+
+# -----------------------------------------------------------------------------------------
 #TEST FIT
 
 # SEQUENTIEL
@@ -107,7 +105,7 @@ print(system.time(model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3
 
 
 # EVALUATE PERFORMANCE MODEL
-perf <- evaluate_performance(model_batch_parallel$probas,model_online_parallel$probas,model_batch_seq$y_val[,1])
+perf <- compare_model(model_batch_seq$probas,model_batch_parallel$probas,model_batch_seq$y_val[,1])
 perf$toPlot
 
 model_batch_seq$y_val[,1]
@@ -163,7 +161,7 @@ data = data[,-33]
 
 # GENERATION DONNÉES LOGISTIQUE
 set.seed(100)
-n <- 500
+n <- 100
 p <- 20
 theta = runif(p+1)
 X <- cbind(1,matrix(rnorm(n*p),n,p))

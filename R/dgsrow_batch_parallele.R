@@ -51,7 +51,7 @@ dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tol
 
   # CLUSTER INSTANCIATION AND OBJECTS EXPORT
   cl <- makeCluster(ncores)
-  clusterExport(cl, c("theta", "sigmoid","gradient"))
+  clusterExport(cl, c("theta", "sigmoid","gradient"),envir=environment())
 
   # INIT HISTORY COST AND ITERATION
   iter <- 0
@@ -81,7 +81,7 @@ dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tol
     cost_vector = c(cost_vector, cost)
 
     # SEND NEW THETA TO CORE OR CLUSTER
-    clusterExport(cl, "theta")
+    clusterExport(cl, "theta",envir=environment())
   }
   stopCluster(cl)
   #___________________________________
