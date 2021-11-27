@@ -12,6 +12,7 @@
 #'  predict(model, new_data, type_pred)
 #' }
 dgrglm.multiclass.predict <- function(model, new_data, type_pred='CLASS'){
+
   instance = list()
 
   # CHECK THAT ALL THE VARIABLES OF THE MODEL ARE INCLUDED

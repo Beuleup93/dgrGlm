@@ -7,6 +7,7 @@ usethis::use_package("dplyr")
 usethis::use_package("utils")
 usethis::use_package("plotROC")
 usethis::use_package("ggplot2")
+usethis::use_package("tidyr")
 
 library(tidyverse)
 library(plotROC)
@@ -54,7 +55,9 @@ y<- rbinom(n,1,fprob)
 data = as.data.frame(cbind(y,X1))
 
 multi <- dgrglm.multiclass.fit(Species ~., data=head(iris,n=150), max_iter = 6000, centering = TRUE)
-predict<- dgrglm.multiclass.predict(multi,iris[,-ncol(iris)],type_pred = "CLASS")
+predict<- dgrglm.multiclass.predict(multi,iris[,-ncol(iris)],type_pred = "PROBAS")
+
+apply(sapply(predict$probas,function(x) x),1,which.max)
 
 
 library(dgrGlm)
@@ -95,7 +98,7 @@ print(system.time(model_mini_online_batch_parallel <- dgs_minibatch_online_paral
 
 # SEQUENTIEL
 print(system.time(model_batch_seq <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="sequentiel",leaning_rate=0.1, max_iter=2000,tolerance=1e-06)))
-print(system.time(model_minibatch_seq <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="sequentiel",batch_size = 351, leaning_rate=0.1, max_iter=2000,tolerance=1e-06)))
+print(system.time(model_minibatch_seq <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="sequentiel",batch_size = 100, leaning_rate=0.1, max_iter=2000,tolerance=1e-06)))
 print(system.time(model_online_seq <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="sequentiel",batch_size = 1, leaning_rate=0.1, max_iter=100,tolerance=1e-06)))
 
 # PARALLEL

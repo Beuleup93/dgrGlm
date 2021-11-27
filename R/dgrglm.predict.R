@@ -15,7 +15,7 @@
 dgrglm.predict <- function(model, new_data, type_pred='CLASS', centering=FALSE){
   instance = list()
   # verifier que toutes les variables du modéle y figure
-  cols_modele = model$colnams
+  cols_modele = model$explicatives
   for (current_col in colnames(new_data)){
     if(!is.element(current_col, cols_modele)){
       print(paste(current_col,"is not part of the variables used to build the model"))

@@ -114,18 +114,17 @@ dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=100,
   # LOGISTIC REGRESSION IMPLEMENTATION FOR EACH CLASS
   iter <- 1
   #list_cost <- list()
-  while(iter < max_iter){
-    iter<- iter+1
+  while(iter <= max_iter){
     for(i in 1:length(unique(y))){
-      theta <- df_theta[,i]
-      y <- df_modalite[,i]
+      theta_mod <- df_theta[,i]
+      y_mod <- df_modalite[,i]
       #cost = logLoss(theta, as.matrix(X), y)
       #list_cost[[i]] = append(list_cost[[i]],cost)
-      grad = gradient(theta, as.matrix(X), y)
-      new_theta = theta - leaning_rate*grad
+      grad = gradient(theta_mod, as.matrix(X), y_mod)
+      new_theta = theta_mod - leaning_rate*grad
       df_theta[,i] <- new_theta
     }
-
+    iter<- iter+1
   }
   #list_cost <- na.omit(list_cost)
   # AT THIS LEVEL, WE HAVE THE ESTIMATED COEFFICIENTS IN DF_THETA
@@ -134,8 +133,4 @@ dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=100,
   class(instance) <- "modele"
   return(instance)
 }
-
-
-
-
 
