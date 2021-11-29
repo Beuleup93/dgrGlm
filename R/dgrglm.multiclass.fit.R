@@ -20,7 +20,7 @@
 #' \dontrun{
 #'  dgrglm.multiclass.fit(formule, data)
 #' }
-dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=100, tolerance=1e-04, random_state=102, centering = FALSE){
+dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=3000, tolerance=1e-04, random_state=102, centering = FALSE){
 
   # OBJECT S3
   instance <- list()
@@ -83,15 +83,8 @@ dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=100,
   # CREATE BIAIS COLUMN
   X$biais = 1
 
-  # LIST OF Y
-  list_y <- list()
-  j<-1
-  for (i in unique(y)){
-    list_y[[j]]<- ifelse(y==i,1,0)
-    j<-j+1
-  }
-  df_modalite<- as.data.frame(sapply(list_y,function(x) x))
-  colnames(df_modalite) <- unique(y)
+  # DATAFRAME OF BINARY VARIABLE MODALITY
+  df_modalite<- recodage.quali(y)
 
   # SHUFLE DATAFRAME MODALITY
   if(!is.null(random_state)){
@@ -113,24 +106,43 @@ dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=100,
 
   # LOGISTIC REGRESSION IMPLEMENTATION FOR EACH CLASS
   iter <- 1
-  #list_cost <- list()
-  while(iter <= max_iter){
+  while(iter <= max_iter) {
     for(i in 1:length(unique(y))){
       theta_mod <- df_theta[,i]
       y_mod <- df_modalite[,i]
-      #cost = logLoss(theta, as.matrix(X), y)
-      #list_cost[[i]] = append(list_cost[[i]],cost)
       grad = gradient(theta_mod, as.matrix(X), y_mod)
       new_theta = theta_mod - leaning_rate*grad
       df_theta[,i] <- new_theta
     }
     iter<- iter+1
   }
-  #list_cost <- na.omit(list_cost)
+
   # AT THIS LEVEL, WE HAVE THE ESTIMATED COEFFICIENTS IN DF_THETA
-  #instance$history_cost <- list_cost
+  list_pred_probas <- list()
+  j <- 1
+  for (i in colnames(df_theta)) {
+    theta <- df_theta[,i]
+    PI <- sigmoid(as.matrix(X) %*% as.vector(theta))
+    list_pred_probas[[j]] <- PI
+    j <- j+1
+  }
+  df_pred_probas<- as.data.frame(sapply(list_pred_probas,function(x) x))
+  colnames(df_pred_probas) <- colnames(df_theta)
+
+  accuracy <- 0
+  for(col in 1:ncol(df_theta)){
+    for (row in 1:nrow(df_modalite)){
+      if(df_modalite[row,col]==1 && df_pred_probas[row,col]>=0.5){
+        accuracy <- accuracy+1
+      }
+    }
+  }
+
+  instance$accuracy <- accuracy/length(X)
   instance$df_theta <- df_theta
-  class(instance) <- "modele"
+  class(instance) <- "ModeleMultiClass"
   return(instance)
 }
+
+
 

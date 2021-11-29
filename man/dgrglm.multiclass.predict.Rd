@@ -4,14 +4,12 @@
 \alias{dgrglm.multiclass.predict}
 \title{Binary or probabilities prediction}
 \usage{
-dgrglm.multiclass.predict(model, new_data, type_pred = "CLASS")
+dgrglm.multiclass.predict(model, new_data)
 }
 \arguments{
 \item{model}{the model created with fit function logistic regression}
 
 \item{new_data}{the new data to be classified}
-
-\item{type_pred}{the type of prediction to perform (binary prediction or probability prediction) by default 'CLASS'}
 }
 \value{
 an instance containing the binary or probability prediction.

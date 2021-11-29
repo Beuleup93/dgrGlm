@@ -4,7 +4,7 @@
 \alias{dg_batch_seq}
 \title{Gradient descent algorithm}
 \usage{
-dg_batch_seq(X, y, theta, leaning_rate, max_iter, tolerance)
+dg_batch_seq(X, y, theta, leaning_rate, max_iter, tolerance, rho = NA, C = NA)
 }
 \arguments{
 \item{X}{is the matrix of our predictor variables with the bias column}
@@ -18,6 +18,10 @@ dg_batch_seq(X, y, theta, leaning_rate, max_iter, tolerance)
 \item{max_iter}{is the number of iterations.}
 
 \item{tolerance}{an additional parameter which specifies the minimum movement allowed for each iteration}
+
+\item{rho}{hyper parameter which allows arbitration between RDIGE and LASSO.}
+
+\item{C}{parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.}
 }
 \value{
 this function returns the instance of model with all parameters

@@ -7,7 +7,8 @@
 #' @param leaning_rate is the learning rate that controls the magnitude of the vector update
 #' @param max_iter is the number of iterations
 #' @param tolerance an additional parameter which specifies the minimum movement allowed for each iteration
-#'
+#' @param rho hyper parameter which allows arbitration between RDIGE and LASSO.
+#' @param C parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.
 #' @return this function returns an instance containing:
 #' \itemize{
 #'  \item final theta
@@ -22,7 +23,7 @@
 #'  dgsrow_batch_parallele(X,y,theta)
 #'  dgsrow_batch_parallele(X,y,theta,ncores=3)
 #' }
-dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tolerance){
+dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tolerance, rho=NA, C=NA){
   instance <- list()
 
   # CONTROL OF DIMENSION
@@ -45,7 +46,11 @@ dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tol
     train_Y$fold = NULL
 
     # CALCUL GRADIENT
-    grad <- gradient(theta,as.matrix(train_X),as.integer(train_Y))
+    if(is.na(C) && is.na(rho)){
+      grad <- gradient(theta,as.matrix(train_X),as.integer(train_Y))
+    }else{
+      grad <- gradientElasticnet(theta,as.matrix(train_X),as.integer(train_Y), rho,C)
+    }
     return(grad)
   }
 
@@ -75,8 +80,14 @@ dgsrow_batch_parallele<- function(X,y,theta, ncores, leaning_rate, max_iter, tol
 
     # UPDATE THETA
     theta = new_theta
+
     # COST CALCULATION
-    cost = logLoss(theta, as.matrix(X), y)
+    if(is.na(C) && is.na(rho)){
+      cost = logLoss(theta, as.matrix(X), y)
+    }else{
+      cost = logLossElasticnet(theta, as.matrix(X), y, rho, C)
+    }
+
     # HISTORIZATION OF THE COST FUNCTION
     cost_vector = c(cost_vector, cost)
 

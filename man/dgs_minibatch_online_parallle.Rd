@@ -12,7 +12,9 @@ dgs_minibatch_online_parallle(
   batch_size,
   leaning_rate,
   max_iter,
-  tolerance
+  tolerance,
+  rho = NA,
+  C = NA
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ dgs_minibatch_online_parallle(
 \item{max_iter}{is the number of iterations.}
 
 \item{tolerance}{an additional parameter which specifies the minimum movement allowed for each iteration}
+
+\item{rho}{hyper parameter which allows arbitration between RDIGE and LASSO.}
+
+\item{C}{parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.}
 }
 \value{
 this function returns an instance containing:

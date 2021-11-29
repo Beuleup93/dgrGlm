@@ -6,7 +6,10 @@
 #' @param leaning_rate is the learning rate that controls the magnitude of the vector update.
 #' @param max_iter is the number of iterations.
 #' @param tolerance an additional parameter which specifies the minimum movement allowed for each iteration
+#' @param rho hyper parameter which allows arbitration between RDIGE and LASSO.
+#' @param C parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.
 #' @importFrom stats na.omit
+#'
 #'
 #' @export
 #' @author "Saliou NDAO <salioundao21@gmail.com>"
@@ -17,7 +20,7 @@
 #'   gradient(X,y,theta)
 #'   gradient(X,y,theta, leaning_rate=0.1, max_iter=100, tolerance=1e-04)
 #' }
-dg_batch_seq<- function(X,y,theta, leaning_rate, max_iter, tolerance){
+dg_batch_seq<- function(X,y,theta, leaning_rate, max_iter, tolerance, rho=NA, C=NA){
 
   if (dim(X)[1] != length(y)){
     stop("the dimensions of 'x' and 'y' do not match")
@@ -31,9 +34,14 @@ dg_batch_seq<- function(X,y,theta, leaning_rate, max_iter, tolerance){
 
   while(iter < max_iter){
     iter <- iter + 1
-    cost = logLoss(theta, as.matrix(X), y)
+    if(is.na(C) && is.na(rho)){
+      cost = logLoss(theta, as.matrix(X), y)
+      grad = gradient(theta, as.matrix(X), y)
+    }else{
+      cost = logLossElasticnet(theta, as.matrix(X), y, rho, C)
+      grad = gradientElasticnet(theta, as.matrix(X), y, rho, C)
+    }
     cost_vector = c(cost_vector, cost)
-    grad = gradient(theta, as.matrix(X), y)
     new_theta = theta - leaning_rate*grad
     if (sum(abs(new_theta-theta)) < tolerance){
       break

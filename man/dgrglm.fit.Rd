@@ -14,7 +14,12 @@ dgrglm.fit(
   tolerance = 1e-04,
   batch_size = NA,
   random_state = 102,
-  centering = FALSE
+  centering = FALSE,
+  feature_selection = FALSE,
+  p_value = 0.01,
+  rho = 0.1,
+  C = 0.1,
+  iselasticnet = FALSE
 )
 }
 \arguments{
@@ -37,6 +42,16 @@ dgrglm.fit(
 \item{random_state}{this parameter defines the seed of the random number generator, use when shuffling to mix observations}
 
 \item{centering}{to center and reduce the variables, by default FALSE}
+
+\item{feature_selection}{parameters indicating the choice to make the selection of variable or not}
+
+\item{p_value}{selection criteria}
+
+\item{rho}{hyper parameter which allows arbitration between RDIGE and LASSO. Elasticnet case.}
+
+\item{C}{parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.Elasticnet case.}
+
+\item{iselasticnet}{for Elasticnet}
 }
 \value{
 an instance of model

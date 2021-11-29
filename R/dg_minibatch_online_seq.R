@@ -10,6 +10,8 @@
 #' @param leaning_rate is the learning rate that controls the magnitude of the vector update.
 #' @param max_iter is the number of iterations.
 #' @param tolerance an additional parameter which specifies the minimum movement allowed for each iteration
+#' @param rho hyper parameter which allows arbitration between RDIGE and LASSO.
+#' @param C parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.
 #'
 #' @importFrom stats na.omit
 #' @export
@@ -25,7 +27,9 @@
 #' \dontrun{
 #'  global_grad_descent(X,y,theta)
 #' }
-dg_batch_minibatch_online_seq<- function(X,y,theta, batch_size, random_state, leaning_rate, max_iter, tolerance){
+dg_batch_minibatch_online_seq<- function(X,y,theta, batch_size, random_state,
+                                         leaning_rate, max_iter, tolerance,
+                                         rho=NA, C=NA){
   instance <- list()
 
   # CONTROL OF MATCH DIMENSION
@@ -52,13 +56,22 @@ dg_batch_minibatch_online_seq<- function(X,y,theta, batch_size, random_state, le
       xBatch = yx[start:stop,-1]
       yBatch = yx[start:stop, 1]
 
-      # HISTORY COST
-      cost = logLoss(theta, as.matrix(xBatch), yBatch)
-      cost_vector = c(cost_vector, cost)
-      nb_iter_ = nb_iter_ +1
+      if(is.na(C) && is.na(rho)){
 
-      # GRADIENT CALCULATION AND CALCUL NEW THETA
-      grd = gradient(theta, as.matrix(xBatch), yBatch)
+        cost = logLoss(theta, as.matrix(xBatch), yBatch)
+        # GRADIENT CALCULATION
+        grd = gradient(theta, as.matrix(xBatch), yBatch)
+      }else{
+        # ELASTICNET COST CALCULE
+        cost = logLossElasticnet(theta, as.matrix(xBatch), yBatch, rho, C)
+        # ELASTICNET GRADIENT CALCULE
+        grd = gradientElasticnet(theta, as.matrix(xBatch), yBatch,rho,C)
+      }
+
+      # HISTORIZE COST
+      cost_vector = c(cost_vector, cost)
+
+      # CALCUL NEW THETA
       new_theta = theta - leaning_rate*grd
 
       # CONTROL OF CONVERGENCE
@@ -67,6 +80,7 @@ dg_batch_minibatch_online_seq<- function(X,y,theta, batch_size, random_state, le
       }
       # UPDATE THETA
       theta = new_theta
+      nb_iter_ = nb_iter_ +1
     }
   }
   #________________________________________

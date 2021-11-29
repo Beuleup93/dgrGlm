@@ -21,3 +21,30 @@ logLoss <- function(theta, X, y){
   return(J)
 }
 
+
+#' Title
+#'
+#' @param theta is a vector containing the parameters or coefficient of the logistic to be estimated
+#' @param X is the matrix of our predictor variables with the bias column
+#' @param y is a target variable to predict
+#' @param rho hyper parameter which allows arbitration between RDIGE and LASSO
+#' @param C parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling
+#'
+#' @return a scalar of the penalized cost function
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   logLossElasticnet(theta, X, y,l1,l2)
+#' }
+logLossElasticnet <- function(theta, X, y, rho, C){
+  n <- length(y)
+  Z = X %*% theta
+  J <- C*(sum(log(exp(-y*(Z))+1)))+rho*sum(abs(theta)) + ((1-rho)/2)*sum(theta^2)
+  return(J)
+}
+
+
+
+
+

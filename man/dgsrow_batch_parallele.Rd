@@ -4,7 +4,17 @@
 \alias{dgsrow_batch_parallele}
 \title{Batch DGSRow Distributed}
 \usage{
-dgsrow_batch_parallele(X, y, theta, ncores, leaning_rate, max_iter, tolerance)
+dgsrow_batch_parallele(
+  X,
+  y,
+  theta,
+  ncores,
+  leaning_rate,
+  max_iter,
+  tolerance,
+  rho = NA,
+  C = NA
+)
 }
 \arguments{
 \item{X}{is the matrix of our predictor variables with the bias column}
@@ -20,6 +30,10 @@ dgsrow_batch_parallele(X, y, theta, ncores, leaning_rate, max_iter, tolerance)
 \item{max_iter}{is the number of iterations}
 
 \item{tolerance}{an additional parameter which specifies the minimum movement allowed for each iteration}
+
+\item{rho}{hyper parameter which allows arbitration between RDIGE and LASSO.}
+
+\item{C}{parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.}
 }
 \value{
 this function returns an instance containing:

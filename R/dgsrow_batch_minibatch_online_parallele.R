@@ -8,6 +8,8 @@
 #' @param leaning_rate is the learning rate that controls the magnitude of the vector update.
 #' @param max_iter is the number of iterations.
 #' @param tolerance an additional parameter which specifies the minimum movement allowed for each iteration
+#' @param rho hyper parameter which allows arbitration between RDIGE and LASSO.
+#' @param C parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.
 #'
 #' @import parallel
 #'
@@ -24,7 +26,7 @@
 #'  dgs_minibatch_online_parallle(X,y,theta)
 #'  dgs_minibatch_online_parallle(X,y,theta,ncores=3)
 #' }
-dgs_minibatch_online_parallle<- function(X, y, theta, ncores, batch_size, leaning_rate, max_iter, tolerance){
+dgs_minibatch_online_parallle<- function(X, y, theta, ncores, batch_size, leaning_rate, max_iter, tolerance, rho=NA, C=NA){
   instance <- list()
 
   # CONTROL OF DIMENSION
@@ -60,8 +62,15 @@ dgs_minibatch_online_parallle<- function(X, y, theta, ncores, batch_size, leanin
       xBatch = app_X[start:stop,]
       yBatch = app_Y[start:stop]
 
-      # GRADIENT CALCULATION AND AGREGATION
-      gradient_aggr <- gradient_aggr+gradient(theta,as.matrix(xBatch),as.integer(yBatch))
+      if(is.na(C) && is.na(rho)){
+        # GRADIENT CALCULATION
+        grd = gradient(theta,as.matrix(xBatch),as.integer(yBatch))
+      }else{
+        # GRADIENT ELASTICNET CALCULATION
+        grd = gradientElasticnet(theta,as.matrix(xBatch),as.integer(yBatch),rho, C)
+      }
+      # AGREGATION GRADIENTS
+      gradient_aggr <- gradient_aggr + grd
     }
     return(gradient_aggr)
   }

@@ -8,7 +8,7 @@ dgrglm.multiclass.fit(
   formule,
   data,
   leaning_rate = 0.1,
-  max_iter = 100,
+  max_iter = 3000,
   tolerance = 1e-04,
   random_state = 102,
   centering = FALSE

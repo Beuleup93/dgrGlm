@@ -12,6 +12,11 @@
 #' @param batch_size a parameter that specifies the number of observations in each mini-batch. It can significantly affect performance
 #' @param random_state this parameter defines the seed of the random number generator, use when shuffling to mix observations
 #' @param centering to center and reduce the variables, by default FALSE
+#' @param feature_selection parameters indicating the choice to make the selection of variable or not
+#' @param p_value selection criteria
+#' @param rho hyper parameter which allows arbitration between RDIGE and LASSO. Elasticnet case.
+#' @param C parameter allowing to arbitrate between the penalty and the likelihood in the guidance of the modeling.Elasticnet case.
+#' @param iselasticnet for Elasticnet
 #' @import plyr
 #' @import parallel
 #' @importFrom stats formula as.formula runif model.frame
@@ -24,7 +29,10 @@
 #'  dgrglm.fit(formule, data)
 #'  dgrglm.fit(formule, data,ncores=3, mode_compute="parallel")
 #' }
-dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leaning_rate=0.1, max_iter=100, tolerance=1e-04, batch_size=NA, random_state=102, centering = FALSE){
+dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leaning_rate=0.1,
+                       max_iter=100, tolerance=1e-04, batch_size=NA,
+                       random_state=102, centering = FALSE, feature_selection=FALSE,
+                       p_value=0.01, rho=0.1, C=0.1, iselasticnet=FALSE){
 
   # OBJECT S3
   instance <- list()
@@ -48,6 +56,14 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
 
   if (max_iter <= 0){
     stop("'max_iter' must be greater than zero")
+  }
+
+  if (C < 0){
+    stop("'C' must be positive")
+  }
+
+  if (rho < 0){
+    stop("'Rho' must be positve")
   }
 
   # CONTROL BATCH SIZE FOR EACH COMPUTE MODE
@@ -74,6 +90,7 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
       stop("Check the concordance between the columns of the formula and those of the data source")
     }
   }
+
   # RECONSITUTE DATAFRAME FROM THE FORMULA
   df = model.frame(formula = as.formula(formule), data = data)
 
@@ -86,9 +103,6 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
   # REMOVE NA in DATASET
   df <- na.omit(df)
 
-  # SAVE EXPLICATIVES VARIABLE IN INSTANCE
-  instance$explicatives = colnames(df[,-1])
-
   # TARGET AND EXPLICATIVES VARIABLES
   y = df[,1]
   X = df[,-1]
@@ -97,6 +111,14 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
   if(centering == TRUE){
     X = centering.reduction(X)
   }
+
+  if(feature_selection==TRUE && !is.null(p_value)){
+    sele <- var.selection(X,y,p_value)
+    X <- X[,sele$varselect$vars]
+  }
+
+  # SAVE EXPLICATIVES VARIABLE IN INSTANCE
+  instance$explicatives = colnames(X)
 
   # CREATE BIAIS COLUMN
   X$biais = 1
@@ -111,25 +133,58 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
   if((mode_compute == 'parallel') && (!is.null(ncores))){
     if(is.na(batch_size)){
       # MODE BATCH PARALLEL
-      instance$res <- dgsrow_batch_parallele(X,y,theta,ncores, leaning_rate, max_iter, tolerance)
+      if(iselasticnet==TRUE){
+        instance$res <- dgsrow_batch_parallele(X,y,theta,ncores, leaning_rate, max_iter,tolerance, rho, C)
+      }else{
+        instance$res <- dgsrow_batch_parallele(X,y,theta,ncores, leaning_rate,max_iter, tolerance)
+      }
+
     } else if(batch_size == 1){
       # MODE ONLINE PARALLEL
-      instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size, leaning_rate, max_iter, tolerance)
+      if(iselasticnet==TRUE){
+        instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size,leaning_rate, max_iter, tolerance, rho, C)
+      }else{
+        instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size,leaning_rate, max_iter, tolerance)
+      }
+
     }else{
       # MODE MINI BATCH PARALLEL
-      instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size, leaning_rate, max_iter, tolerance)
+      if(iselasticnet==TRUE){
+        instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size, leaning_rate, max_iter, tolerance, rho, C)
+      }else{
+        instance$res <- dgs_minibatch_online_parallle(X,y,theta, ncores, batch_size, leaning_rate, max_iter, tolerance)
+      }
+
     }
 
   }else if(mode_compute == 'sequentiel'){
     if(is.na(batch_size)){
       # MODE BATCH SEQUENTIEL
-      instance$res <- dg_batch_seq(X,y,theta,leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+      if(iselasticnet==TRUE){
+        instance$res <- dg_batch_seq(X,y,theta,leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance,rho, C)
+      }else{
+        instance$res <- dg_batch_seq(X,y,theta,leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+      }
+
     } else if(batch_size == 1){
       # MODE ONLINE SEQUENTIEL
-      instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+      if(iselasticnet==TRUE){
+        instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size,random_state=random_state,
+                                                      leaning_rate=leaning_rate,max_iter=max_iter, tolerance=tolerance, rho, C)
+      }else{
+        instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state,
+                                                      leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+      }
     }else{
       # MODE MINI BATCH SEQUENTIEL
-      instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state, leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+      if(iselasticnet==TRUE){
+        instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size,random_state=random_state,
+                                                      leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance, rho, C)
+      }else{
+        instance$res <- dg_batch_minibatch_online_seq(X,y,theta, batch_size=batch_size, random_state=random_state,
+                                                      leaning_rate=leaning_rate, max_iter=max_iter, tolerance=tolerance)
+      }
+
     }
   }
 
@@ -141,3 +196,4 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
   class(instance) <- "modele"
   return(instance)
 }
+

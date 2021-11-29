@@ -30,12 +30,18 @@ dgrglm.predict <- function(model, new_data, type_pred='CLASS', centering=FALSE){
   new_data$biais = 1
   theta = model$res$theta
   PI <- sigmoid(as.matrix(new_data) %*% as.vector(theta))
-  if(type_pred == 'CLASS'){
-    instance$binary_predict <- binary_predict(PI)
+  new_data$biais = NULL
+
+  if(type_pred == 'PROBAS'){
+    instance$probas <- PI
+    instance$new_data_classify <- as.data.frame(cbind(new_data,instance$probas))
   }else{
-   instance$probas <- PI
+    instance$binary_predict <- binary_predict(PI)
+    instance$new_data_classify <- as.data.frame(cbind(new_data,instance$binary_predict))
   }
+
   class(instance) <- "predict"
   return(instance)
 }
+
 
