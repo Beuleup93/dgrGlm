@@ -157,16 +157,18 @@ perf <- compare_model(probas_mod1=model_batch_seq$probas,
 </div><br/>
 Here we see that the Batch model is clearly better than the online model in terms of prediction
 
+
 ###### parallel execution:
 
 The idea of parallel execution is to slice the data according to the number of cores of the machine and to distribute the calculations on these cores. If the user provides a number of cores not available, the program automatically chooses the max-1 cores.
 
-For a sequential execution, specify **comput_mode ='parallel'** and **nbcores=max-1** in your computer. <br/>
+For a parallel execution, specify **comput_mode ='parallel'** and **nbcores=max-1** in your computer. <br/>
 
 - Mode BATCH
 
 ```sh
-model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
+model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                   leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
 ```
 <div align="center">
 <img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
@@ -174,6 +176,9 @@ model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="par
 
 - MODE MINI BATCH
 ```sh
+
+model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                       leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 10)
 ```
    
 <div align="center">
@@ -183,13 +188,80 @@ model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="par
 - MODE ONLINE
 
 ```sh
+model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                    leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 1)
+
 ```
    
 <div align="center">
-
+<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png"
+<img width="430" alt="Capture d’écran 2021-11-29 à 20 00 22" src="https://user-images.githubusercontent.com/31353252/143935316-66356663-d017-43d6-a2fb-d64150d7af09.png">
+>
 </div>
 
 
+
+```sh
+perf <- compare_model(probas_mod1=model_batch_parallel$probas,
+                      probas_mod2=model_minibatch_parallel$probas,
+                      y=model_minibatch_parallel$y_val[,1])
+                      
+perf <- compare_model(probas_mod1=model_batch_parallel$probas,
+                      probas_mod2=model_online_parallel$probas,
+                      y=model_online_parallel$y_val[,1])
+```
+
+<div>
+  <img width="1280" alt="1" src="https://user-images.githubusercontent.com/31353252/143941004-2a5c1f76-550e-4dc9-8013-3a7ea91e7abf.png">
+  <img width="1280" alt="2" src="https://user-images.githubusercontent.com/31353252/143941017-35fe5f06-8a72-4915-b891-46417aa0734a.png">
+</div>
+
+
+###### Microbenchmark
+
+- **Sequential**
+
+```sh
+library(microbenchmark)
+microbenchmark(
+  model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                                leaning_rate=0.1, max_iter=1000,tolerance=1e-06),
+  model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1,
+                                    max_iter=1000,tolerance=1e-06,batch_size = 10),
+  model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                                 leaning_rate=0.1, max_iter=1000,tolerance=1e-06, batch_size = 1),
+  times = 1,
+  unit = "s"
+)
+```
+<br/>
+
+<div align="center">
+<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
+</div>
+
+- **Parallel**
+
+
+
+```sh
+microbenchmark(
+  model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                     leaning_rate=0.1, max_iter=1000,tolerance=1e-06),
+  model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                         leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 10),
+  model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                      leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 1),
+  times = 1,
+  unit = "s"
+)
+
+```
+<br/>
+
+<div align="center">
+<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
+</div>
 
 
 
