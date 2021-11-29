@@ -87,24 +87,107 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
                        random_state=102, centering = FALSE, feature_selection=FALSE,
                        p_value=0.01, rho=0.1, C=0.1, iselasticnet=FALSE){...}
 ```
-Cette fonction prends en compte plusieurs aspects:
-- Execution séquentiel **mode_compute="séquentiel"**
-- Exécution paralléle **ncores=NA, mode_compute="parallel"**
-- Execution selon les mode Batch, Mini Batch et online avec **batch_size=NA**
-- Centrage réduction des variables explicatives avec **centering = FALSE**
-- Selections de variables en jouant sur les argument **feature_selection=FALSE, p_value=0.01**
-- Elasticnet (Ridge pour **rho**=0 Lasso **rho**=1) avec les arguments **C** et **rho**.
+
+This function takes into account several aspects:
+- sequential execution with **mode_compute="sequentiel"**
+- parallel execution with **ncores=NA, mode_compute="parallel"**
+- Execution in Batch, Mini Batch and Online modes with **batch_size=NA**
+- Centering reduction of explanatory variables with **centering = FALSE**
+- Selection of variables by playing on the arguments **feature_selection=FALSE, p_value=0.01**
+- Elasticnet (**Ridge** for **rho**=0 and **Lasso** for **rho**=1) avec les arguments **C** et **rho**.
+For each algorithm the principle is explained in the report.
+
 ###### sequential execution:
-  
-- Mode BATCH
-- MODE MINI BATCH
-- MODE ONLINE
+
+For a sequential execution, specify **comput_mode ='sequentiel'**. <br/>
+
+- BATCH Mode 
+
+```sh
+model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel", leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
+summary(model_batch_seq)
+```
+<br/>
+
+We have overloaded the **print** and **summary** methods for a display adapted to our objects returned by **fit**.
+
+<div align="center">
+  <img width="429" alt="Capture d’écran 2021-11-29 à 16 57 01" src="https://user-images.githubusercontent.com/31353252/143910912-c1033fa8-c447-4452-9667-3c7932eb34f2.png">
+</div>
+
+- MINI BATCH MODE 
+
+```sh
+model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1, max_iter=2000,tolerance=1e-06,batch_size = 10)
+summary(model_minibatch_seq)
+```
+
+<div align="center">
+<img width="436" alt="Capture d’écran 2021-11-29 à 16 56 52" src="https://user-images.githubusercontent.com/31353252/143910933-758993f1-7073-4bcf-894a-ffa2f9f6943c.png">
+</div>
+
+- ONLINE MODE 
+
+```sh
+model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1, max_iter=1000,tolerance=1e-06, batch_size = 1)
+```
+<div align="center">
+<img width="447" alt="Capture d’écran 2021-11-29 à 17 23 34" src="https://user-images.githubusercontent.com/31353252/143915039-fa61b75c-68e3-4b57-991f-c6056f93357a.png">
+</div>
+
+In order to test our different models, we have developed an external function, which displays the ROC curves according to the probabilities of each model. This function is in the trace file devtools_history.R
+
+```sh
+perf <- compare_model(probas_mod1=model_batch_seq$probas,
+                      probas_mod2=model_minibatch_seq$probas,
+                      y=model_minibatch_seq$y_val[,1])
+```
+<div align="center">
+<img width="1279" alt="Capture d’écran 2021-11-29 à 17 06 18" src="https://user-images.githubusercontent.com/31353252/143912390-0fb07683-e8dc-4d2c-845a-f03821bf73c8.png">
+</div>
+In terms of their ROC curves, the two models are roughly similar in terms of predictions. In terms of their ROC curves, the two models are roughly similar in terms of predictions. Nevertheless model 2 is better.
+
+```sh
+perf <- compare_model(probas_mod1=model_batch_seq$probas,
+                      probas_mod2=model_online_seq$probas,
+                      y=model_online_seq$y_val[,1])
+```
+<div align="center">
+<img width="1280" alt="Capture d’écran 2021-11-29 à 17 36 04" src="https://user-images.githubusercontent.com/31353252/143916401-4c9f134d-4b78-4c34-8522-a0b393fee4fe.png">
+</div><br/>
+Here we see that the Batch model is clearly better than the online model in terms of prediction
 
 ###### parallel execution:
-L'idée de l'exécution parallél consiste à découper les données do
+
+The idea of parallel execution is to slice the data according to the number of cores of the machine and to distribute the calculations on these cores. If the user provides a number of cores not available, the program automatically chooses the max-1 cores.
+
+For a sequential execution, specify **comput_mode ='parallel'** and **nbcores=max-1** in your computer. <br/>
+
 - Mode BATCH
+
+```sh
+model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
+```
+<div align="center">
+<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
+</div>
+
 - MODE MINI BATCH
+```sh
+```
+   
+<div align="center">
+
+</div>
+
 - MODE ONLINE
+
+```sh
+```
+   
+<div align="center">
+
+</div>
 
 
 
