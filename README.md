@@ -78,7 +78,33 @@ In order to test our functions, we will work with the dataset **ionosphere.xlsx*
 
 ### Binary Logistic Regression
 
-We will start by testing the binary logistic regression on our dataset. The variable to be explained is Y and the explanatory variables are a03,...,a34
+We will start by testing the binary logistic regression on our dataset. The variable to be explained is Y and the explicatives variables are a03,...,a34.
+
+#### General function fit
+```sh
+dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leaning_rate=0.1,
+                       max_iter=100, tolerance=1e-04, batch_size=NA,
+                       random_state=102, centering = FALSE, feature_selection=FALSE,
+                       p_value=0.01, rho=0.1, C=0.1, iselasticnet=FALSE){...}
+```
+Cette fonction prends en compte plusieurs aspects:
+- Execution séquentiel **mode_compute="séquentiel"**
+- Exécution paralléle **ncores=NA, mode_compute="parallel"**
+- Execution selon les mode Batch, Mini Batch et online avec **batch_size=NA**
+- Centrage réduction des variables explicatives avec **centering = FALSE**
+- Selections de variables en jouant sur les argument **feature_selection=FALSE, p_value=0.01**
+- Elasticnet (Ridge pour **rho**=0 Lasso **rho**=1) avec les arguments **C** et **rho**.
+###### sequential execution:
+  
+- Mode BATCH
+- MODE MINI BATCH
+- MODE ONLINE
+
+###### parallel execution:
+L'idée de l'exécution parallél consiste à découper les données do
+- Mode BATCH
+- MODE MINI BATCH
+- MODE ONLINE
 
 
 
