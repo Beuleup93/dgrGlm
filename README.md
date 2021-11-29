@@ -185,7 +185,6 @@ model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="pa
 ```
    
 <div align="center">
-<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
 <img width="430" alt="Capture d’écran 2021-11-29 à 20 00 22" src="https://user-images.githubusercontent.com/31353252/143935316-66356663-d017-43d6-a2fb-d64150d7af09.png">
 </div>
 
