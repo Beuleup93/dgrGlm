@@ -48,11 +48,6 @@ you can write in your console: **?dgrGlm.fit** to see the documentation or:
 ```sh
 help(dgrGlm.fit)
 ```
-<br/>
-<div align="center">
-<img width="1121" alt="Capture d’écran 2021-11-29 à 15 57 01" src="https://user-images.githubusercontent.com/31353252/143900558-aa1d08e5-04a9-4942-8e0a-f528a779b5b4.png">
-</div>
-<br/>
 
 In order to test our functions, we will work with the dataset **ionosphere.xlsx**. It consists of 351 obervations and 34 variables.
 
