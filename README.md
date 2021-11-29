@@ -287,7 +287,7 @@ In the following we will just play on n and p to increase or decrease the number
 </div>
 
 - **Parallel**
-- 
+
 <br/>
 
 <div align="center">
