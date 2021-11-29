@@ -209,11 +209,16 @@ perf <- compare_model(probas_mod1=model_batch_parallel$probas,
 perf <- compare_model(probas_mod1=model_batch_parallel$probas,
                       probas_mod2=model_online_parallel$probas,
                       y=model_online_parallel$y_val[,1])
+                      
+perf <- compare_model(probas_mod1=model_minibatch_parallel$probas,
+                      probas_mod2=model_online_parallel$probas,
+                      y=model_online_parallel$y_val[,1])                                      
 ```
 
 <div>
   <img width="1280" alt="1" src="https://user-images.githubusercontent.com/31353252/143941004-2a5c1f76-550e-4dc9-8013-3a7ea91e7abf.png">
   <img width="1280" alt="2" src="https://user-images.githubusercontent.com/31353252/143941017-35fe5f06-8a72-4915-b891-46417aa0734a.png">
+  <img width="1280" alt="Capture d’écran 2021-11-29 à 20 53 59" src="https://user-images.githubusercontent.com/31353252/143941527-09d17943-a01d-4a63-9d5c-0c529d9d1cfa.png">
 </div>
 
 
@@ -237,12 +242,10 @@ microbenchmark(
 <br/>
 
 <div align="center">
-<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
+<img width="502" alt="Capture d’écran 2021-11-29 à 20 43 59" src="https://user-images.githubusercontent.com/31353252/143940936-e32bcaa2-bfc5-4142-b41b-1f963db6a398.png">
 </div>
 
 - **Parallel**
-
-
 
 ```sh
 microbenchmark(
@@ -255,13 +258,59 @@ microbenchmark(
   times = 1,
   unit = "s"
 )
-
 ```
 <br/>
 
 <div align="center">
-<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
+<img width="490" alt="Capture d’écran 2021-11-29 à 20 56 33" src="https://user-images.githubusercontent.com/31353252/143941845-337075c7-64a3-46cf-9c5b-91c1877ea479.png">
 </div>
+<br/>
+We implemented logistic regression in sequential and parallel mode. The idea was to see if using all the computational cores a machine has for the execution of the algorithm could increase the speed or not.
+According to the results of the Benchmark, there does not seem to be a global gain by executing in parallel (cutting data in lines) as opposed to a sequential execution
+
+To verify this hypothesis we will generate logistic data manually and play on the number of individuals and variables and test for each case the computation time.
+<br/>
+
+###### Logistic data generation
+```sh
+set.seed(103)
+n <-1000000  # Number of obervations
+p <- 5 # Number of variables
+theta = runif(p+1) # Theta vector
+X <- cbind(1,matrix(rnorm(n*p),n,p))
+Z <- X %*% theta # linear combination of variables
+fprob <- ifelse(Z<0, exp(Z)/(1+exp(Z)),1/(1+exp(-Z))) # Calcul des probas d'affectation
+y<- rbinom(n,1,fprob)
+data = as.data.frame(cbind(X,y))
+data$V1 <- NULL # delete colomn de biais. It will be created when fit is called
+```
+The dataset is well generated. It contains 1 million rows<br/>
+
+<div align="center">
+<img width="511" alt="Capture d’écran 2021-11-29 à 21 17 44" src="https://user-images.githubusercontent.com/31353252/143944384-21b44e31-8da6-4935-97cf-fca8568056a7.png">
+</div>
+<br/>
+In the following we will just play on n and p to increase or decrease the number of variables and/or individuals. Now, Let's run the Microbenchmark again on the set of 1 million rows and 5 variables.
+
+- **Sequential**
+<br/>
+<div align="center">
+<img width="502" alt="Capture d’écran 2021-11-29 à 20 43 59" src="https://user-images.githubusercontent.com/31353252/143940936-e32bcaa2-bfc5-4142-b41b-1f963db6a398.png">
+</div>
+
+- **Parallel**
+<br/>
+
+<div align="center">
+<img width="490" alt="Capture d’écran 2021-11-29 à 20 56 33" src="https://user-images.githubusercontent.com/31353252/143941845-337075c7-64a3-46cf-9c5b-91c1877ea479.png">
+</div>
+<br/>
+
+
+
+
+
+
 
 
 
