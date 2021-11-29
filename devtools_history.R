@@ -1,6 +1,9 @@
+# Ce fichier nous permet de gerer LES traces et de tester les fonctions de notre packages.
+# Il ne fait pas parti du package. usethis::use_build_ignore("devtools_history.R").
+
 usethis::use_build_ignore("devtools_history.R")
 usethis::use_package("stats")
-usethis::use_package("magrittr") # à executer plus tard
+usethis::use_package("magrittr")
 usethis::use_package("plyr")
 usethis::use_package("parallel")
 usethis::use_package("dplyr")
@@ -22,7 +25,7 @@ compare_model<- function(probas_mod1, probas_mod2, y){
   df_err<- predClass %>%
     mutate(obs=y) %>%
     summarise_all(funs(err=mean(obs!=.))) %>%
-    #select(-obs_err) %>%
+    select(-obs_err) %>%
     round(3)
   # Etude des courbes ROC
   df_roc <- predProbas %>%
@@ -39,24 +42,16 @@ compare_model<- function(probas_mod1, probas_mod2, y){
 
 # CODE DE GENERATION DONNÉES LOGISTIQUE
 set.seed(103)
-n <-1000
-p <- 10
-theta = runif(p+1) # or theta = runif(7)
-X <- cbind(1,matrix(rnorm(n*p),n,p)) #  6 Variables quantitative
-X1 = matrix(rnorm(n*p),n,p)
-X1 <- as.data.frame(X1)
-Z <- X %*% theta # combinaison lineare de variable
+n <-10000  # Number of obervations
+p <- 5 # Number of variables
+theta = runif(p+1) # Theta vector
+X <- cbind(1,matrix(rnorm(n*p),n,p))
+Z <- X %*% theta # linear combination of variables
 fprob <- ifelse(Z<0, exp(Z)/(1+exp(Z)),1/(1+exp(-Z))) # Calcul des probas d'affectation
 y<- rbinom(n,1,fprob)
-data = as.data.frame(cbind(y,X1))
+data = as.data.frame(cbind(X,y))
+data$V1 <- NULL # delete colomn de biais. It will be created when fit is called
 
-
-# TESTE DES FONCTIONS
-
-# PARALLÉLISATION DES CALCULS
-library(xlsx)
-data <- read.xlsx(file="~/Desktop/Lyon2/SISE/AtelierMachLeraning/Reg Logistique_opt_hyp/ionosphere.xlsx",sheetIndex=1,header=T)
-data = data[,-33]
 
 library(dgrGlm)
 sigmoid(Z)
@@ -64,54 +59,149 @@ logLoss(theta,X,y)
 gradient(theta,X,y)
 
 # -----------------------------------------------------------------------------------------
+
 #TEST FIT
 
-# SEQUENTIEL
-print(system.time(model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
-                                                leaning_rate=0.1, max_iter=2000,tolerance=1e-06,
-                                                feature_selection=TRUE, p_value=0.01)))
-# FONCTION SUMMARY ET PRINT SURCHARGÉ
-print(model_batch_seq)
+# BATCH SEQUENTIEL
+model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                              leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
+# SURCHARGE PRINT ET SUMMARY
 summary(model_batch_seq)
+print(model_batch_seq)
+
+# MINI BATCH SEQUENTIEL
+model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1,
+                                  max_iter=1000,tolerance=1e-06,batch_size = 10)
+# SURCHARGE PRINT ET SUMMARY
+summary(model_batch_seq)
+print(model_batch_seq)
+
+# ONLINE SEQUENTIEL
+model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                               leaning_rate=0.1, max_iter=1000,tolerance=1e-06, batch_size = 1)
+summary(model_batch_seq)
+print(model_batch_seq)
+
+# COMPARAISON MODELE
+perf <- compare_model(probas_mod1=model_batch_seq$probas,
+                      probas_mod2=model_online_seq$probas,
+                      y=model_online_seq$y_val[,1])
+perf$toPlo
+
+# SEQUENTIEL EXECUTION TIME
+print(system.time(model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                                                leaning_rate=0.1, max_iter=1000,tolerance=1e-06,
+                                                feature_selection=TRUE, p_value=0.01)))
 
 print(system.time(model_batch_seq2 <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
                                                 leaning_rate=0.1, max_iter=2000,tolerance=1e-06,
                                                 iselasticnet=TRUE, C=10, rho=1)))
+
+print(system.time(model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                                                    batch_size = 100,leaning_rate=0.1,
+                                                    max_iter=2000,tolerance=1e-06)))
 # FONCTION SUMMARY ET PRINT SURCHARGÉ
 print(model_batch_seq2)
 summary(model_batch_seq2)
 
+# FOR PREDICT
 new_data<-data[,model_batch_seq$explicatives]
-predict$new_data_classify<- dgrglm.predict(model_batch_seq,new_data)
-
-print(predict)
-summary(predict)
+predict<- dgrglm.predict(model_batch_seq,new_data, type_pred = 'CLASS')
 predict$new_data_classify
 
-print(system.time(model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",batch_size = 100, leaning_rate=0.1, max_iter=2000,tolerance=1e-06)))
-print(system.time(model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",batch_size = 1, leaning_rate=0.1, max_iter=100,tolerance=1e-06)))
+# MICROBENCHMARK SEQUENTIEL
+library(microbenchmark)
+microbenchmark(
+  model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                                leaning_rate=0.1, max_iter=500,tolerance=1e-04),
+  model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1,
+                                    max_iter=500,tolerance=1e-04,batch_size = 10),
+  model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                                 leaning_rate=0.1, max_iter=500,tolerance=1e-04, batch_size = 1),
+  times = 1,
+  unit = "s"
+)
 
 
+# PARALLEL EXECUTION
 
-# PARALLEL
-print(system.time(model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                                     leaning_rate=0.1, max_iter=100,tolerance=1e-06,
-                                                     iselasticnet=TRUE, C=10, rho=0.001)))
+# PARALLEL BATCH
+model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                   leaning_rate=0.1, max_iter=100,tolerance=1e-06)
+# SURCHARGE PRINT ET SUMMARY
 print(model_batch_parallel)
 summary(model_batch_parallel)
 
-print(system.time(model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                                         batch_size = 100,leaning_rate=0.1, max_iter=3000,tolerance=1e-06)))
+# PARALLEL MINI BATCH
+model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                       leaning_rate=0.1, max_iter=100,tolerance=1e-06,batch_size = 10)
+# SURCHARGE PRINT ET SUMMARY
+print(model_minibatch_parallel)
+summary(model_minibatch_parallel)
 
-print(system.time(model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                                      batch_size = 1,leaning_rate=0.1, max_iter=100,tolerance=1e-06)))
+# PARALLEL ONLINE
+model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                    leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 1)
 
+# SURCHARGE PRINT ET SUMMARY
+print(model_online_parallel)
+summary(model_online_parallel)
 
-# EVALUATE PERFORMANCE MODEL
-perf <- compare_model(probas_mod1=model_minibatch_parallel$probas,
+# MICROBENCHMARK PARALLEL
+library(microbenchmark)
+microbenchmark(
+  model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                     leaning_rate=0.1, max_iter=1000,tolerance=1e-06),
+
+  model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                         leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 10),
+  model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                      leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 1),
+  times = 1,
+  unit = "s"
+)
+
+# COMPARAISON MODEL
+perf1 <- compare_model(probas_mod1=model_batch_parallel$probas,
+                      probas_mod2=model_minibatch_parallel$probas,
+                      y=model_minibatch_parallel$y_val[,1])
+perf1$toPlo
+
+perf2 <- compare_model(probas_mod1=model_batch_parallel$probas,
                       probas_mod2=model_online_parallel$probas,
                       y=model_online_parallel$y_val[,1])
-perf$toPlot
+perf2$toPlo
+
+perf3 <- compare_model(probas_mod1=model_minibatch_parallel$probas,
+                      probas_mod2=model_online_parallel$probas,
+                      y=model_online_parallel$y_val[,1])
+perf3$toPlo
+
+
+# EXECUTION TIME
+print(system.time(model_batch_parallel <- dgrglm.fit(y~., data = data, mode_compute="parallel",
+                                                     leaning_rate=0.1, max_iter=100,tolerance=1e-06, centering = TRUE)))
+
+model_batch_parallel$archive_EctMoy
+predict<- dgrglm.predict(model_batch_seq,new_data, type_pred = 'CLASS')
+
+predict$new_data_classify
+
+print(model_batch_parallel)
+summary(model_batch_parallel)
+
+
+
+
+
+print(system.time(model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                                         batch_size = 100,leaning_rate=0.1, max_iter=3000,
+                                                         tolerance=1e-06)))
+
+print(system.time(model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                                      batch_size = 1,leaning_rate=0.1, max_iter=100,
+                                                      tolerance=1e-06)))
+
 
 
 

@@ -14,7 +14,7 @@
 #' }
 dgrglm.predict <- function(model, new_data, type_pred='CLASS', centering=FALSE){
   instance = list()
-  # verifier que toutes les variables du modéle y figure
+  # check that all the variables of the model are included
   cols_modele = model$explicatives
   for (current_col in colnames(new_data)){
     if(!is.element(current_col, cols_modele)){
@@ -22,11 +22,12 @@ dgrglm.predict <- function(model, new_data, type_pred='CLASS', centering=FALSE){
       stop("Check the consistency of the new variables with that of the model")
     }
   }
-  # enleve la colonne cible
-  if(centering == TRUE){
-   new_data = centering.reduction(new_data)
+  # CENTERING REDUCTION
+  if(!is.null(model$archive_EctMoy)){
+    X <- centering.red.pred(new_data,model$archive_EctMoy)
+    new_data <- X$Xtest
   }
-  # Ajoutons la colonne de biais
+  # ADD COLUMN BIAIS
   new_data$biais = 1
   theta = model$res$theta
   PI <- sigmoid(as.matrix(new_data) %*% as.vector(theta))

@@ -79,6 +79,8 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
 
   if(is.na(ncores) || ncores<=0 || ncores>=detectCores()){
     ncores = detectCores()-1
+  }else{
+    stop('enter a correct value for number of ncore')
   }
 
   # COLUMN MATCHING CONTROL BETWEEN DATA AND FORMULA
@@ -109,7 +111,11 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
 
   # CENTERING AND REDUCTION EXPLICATIVES VARIABLE
   if(centering == TRUE){
-    X = centering.reduction(X)
+    scaling = centering.reduction(X)
+    X = scaling$Y
+    instance$archive_EctMoy <- scaling$Arch
+  }else{
+    instance$archive_EctMoy <- NULL
   }
 
   if(feature_selection==TRUE && !is.null(p_value)){
@@ -186,6 +192,8 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
       }
 
     }
+  }else{
+    stop("You must enter execution mode: 'sequentiel or parallel")
   }
 
   instance$probas <- sigmoid(X %*% instance$res$theta)
