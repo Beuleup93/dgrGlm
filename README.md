@@ -42,27 +42,43 @@ With 𝜋, we have a true "score" i.e., a true estimate of the probability of be
 
 The objective of this guide is not to explain the mathematical formulas around logistic regression but to give you an overview of our package.
 
-### Binary Logistic Regression
+### Installation and data loading
 
 In order to use our package, you should install it from Github.
 
-<div align="center">
-<img width="655" alt="Capture d’écran 2021-11-29 à 10 09 10" src="https://user-images.githubusercontent.com/31353252/143848642-05781b52-3029-4340-b2af-1e3625820291.png">
-</div>
+```sh
+library(devtools)
+install_github("Beuleup93/dgrGlm")
+```
 
 Once the package is downloaded and successfully installed, please load it for use.
 
-<div align="center">
-<img width="394" alt="Capture d’écran 2021-11-29 à 10 09 57" src="https://user-images.githubusercontent.com/31353252/143848671-180f2745-62d9-463a-906f-8d1605c5906f.png">
-</div>
+```sh
+library(dgrGlm)
+```
 <br/>
 
 Now you can access all available functions of the package. To prove it, we will display the documentation of our fit function.
-you can write in your console: **?dgrGlm.fit** to see the documentation. 
-<div align="center">
-<img width="555" alt="Capture d’écran 2021-11-29 à 10 15 10" src="https://user-images.githubusercontent.com/31353252/143865071-d91c82e5-7de4-4d4d-a718-c1f908d9a7b9.png">
-<div/>
+you can write in your console: **?dgrGlm.fit** to see the documentation or: 
 
+```sh
+help(dgrGlm.fit)
+```
+<br/>
+
+<div align="center">
+<img width="1121" alt="Capture d’écran 2021-11-29 à 15 57 01" src="https://user-images.githubusercontent.com/31353252/143900558-aa1d08e5-04a9-4942-8e0a-f528a779b5b4.png">
+</div>
+
+In order to test our functions, we will work with the dataset **ionosphere.xlsx**. It consists of 351 obervations and 34 variables.
+
+<div align="center">
+<img width="490" alt="Capture d’écran 2021-11-29 à 15 59 47" src="https://user-images.githubusercontent.com/31353252/143900971-229feff3-18f8-4cba-89ce-0efcba432037.png">
+</div>
+
+### Binary Logistic Regression
+
+We will start by testing the binary logistic regression on our dataset. The variable to be explained is Y and the explanatory variables are a03,...,a34
 
 
 
