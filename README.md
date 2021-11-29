@@ -49,16 +49,17 @@ you can write in your console: **?dgrGlm.fit** to see the documentation or:
 help(dgrGlm.fit)
 ```
 <br/>
-
 <div align="center">
 <img width="1121" alt="Capture d’écran 2021-11-29 à 15 57 01" src="https://user-images.githubusercontent.com/31353252/143900558-aa1d08e5-04a9-4942-8e0a-f528a779b5b4.png">
 </div>
+<br/>
 
 In order to test our functions, we will work with the dataset **ionosphere.xlsx**. It consists of 351 obervations and 34 variables.
 
 <div align="center">
 <img width="490" alt="Capture d’écran 2021-11-29 à 15 59 47" src="https://user-images.githubusercontent.com/31353252/143900971-229feff3-18f8-4cba-89ce-0efcba432037.png">
 </div>
+<br/>
 
 ### 1. Binary Logistic Regression
 
@@ -88,7 +89,8 @@ For a sequential execution, specify **comput_mode ='sequentiel'**. <br/>
 - BATCH Mode 
 
 ```sh
-model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel", leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
+model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel", 
+                   leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
 summary(model_batch_seq)
 ```
 <br/>
@@ -102,19 +104,22 @@ We have overloaded the **print** and **summary** methods for a display adapted t
 - MINI BATCH MODE 
 
 ```sh
-model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1, max_iter=2000,tolerance=1e-06,batch_size = 10)
+model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
+                       leaning_rate=0.1, max_iter=2000,tolerance=1e-06,batch_size = 10)
 summary(model_minibatch_seq)
 ```
-
+<br/>
 <div align="center">
 <img width="436" alt="Capture d’écran 2021-11-29 à 16 56 52" src="https://user-images.githubusercontent.com/31353252/143910933-758993f1-7073-4bcf-894a-ffa2f9f6943c.png">
 </div>
 
 - ONLINE MODE 
-
+<br/>
 ```sh
-model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1, max_iter=1000,tolerance=1e-06, batch_size = 1)
+model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1, 
+                               max_iter=1000,tolerance=1e-06, batch_size = 1)
 ```
+<br/>
 <div align="center">
 <img width="447" alt="Capture d’écran 2021-11-29 à 17 23 34" src="https://user-images.githubusercontent.com/31353252/143915039-fa61b75c-68e3-4b57-991f-c6056f93357a.png">
 </div>
@@ -162,25 +167,26 @@ model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="par
 ```sh
 
 model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                       leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 10)
+                                       leaning_rate=0.1, max_iter=1000,tolerance=1e-06,
+                                       batch_size = 10)
 ```
    
 <div align="center">
-
+<img width="423" alt="Capture d’écran 2021-11-29 à 20 45 30" src="https://user-images.githubusercontent.com/31353252/143940909-8c1747ed-abf1-4131-b46d-9c99262e6fb5.png">
 </div>
 
 - MODE ONLINE
 
 ```sh
 model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                    leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 1)
+                                    leaning_rate=0.1, max_iter=1000,tolerance=1e-06,
+                                    batch_size = 1)
 
 ```
    
 <div align="center">
-<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png"
+<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
 <img width="430" alt="Capture d’écran 2021-11-29 à 20 00 22" src="https://user-images.githubusercontent.com/31353252/143935316-66356663-d017-43d6-a2fb-d64150d7af09.png">
->
 </div>
 
 
@@ -205,7 +211,8 @@ perf <- compare_model(probas_mod1=model_minibatch_parallel$probas,
   <img width="1280" alt="Capture d’écran 2021-11-29 à 20 53 59" src="https://user-images.githubusercontent.com/31353252/143941527-09d17943-a01d-4a63-9d5c-0c529d9d1cfa.png">
 </div>
 
-Looking at the three ROC curves, we can assume that the 03 models (Batch, Mini Batch, Online) are similar in terms of predictions. However there is a big difference on the execution time (see Microbenchmark) 
+Looking at the three ROC curves, we can assume that the 03 models (Batch, Mini Batch, Online) are similar in terms of predictions. However there is a big difference on the execution time (see Microbenchmark).
+
 
 #### Microbenchmark
 
@@ -229,9 +236,9 @@ microbenchmark(
 <div align="center">
 <img width="502" alt="Capture d’écran 2021-11-29 à 20 43 59" src="https://user-images.githubusercontent.com/31353252/143940936-e32bcaa2-bfc5-4142-b41b-1f963db6a398.png">
 </div>
-
+<br/>
 - **Parallel**
-
+<br/>
 ```sh
 microbenchmark(
   model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
@@ -277,27 +284,72 @@ The dataset is well generated. It contains 1 million rows<br/>
 <br/>
 In the following we will just play on n and p to increase or decrease the number of variables and/or individuals. Now, Let's run the Microbenchmark again on the set of 1 million rows and 5 variables.
 
+<br/>
 - **Sequential**
 <br/>
 <div align="center">
-<img width="502" alt="Capture d’écran 2021-11-29 à 20 43 59" src="https://user-images.githubusercontent.com/31353252/143940936-e32bcaa2-bfc5-4142-b41b-1f963db6a398.png">
+
 </div>
 
 - **Parallel**
 <br/>
 
 <div align="center">
-<img width="490" alt="Capture d’écran 2021-11-29 à 20 56 33" src="https://user-images.githubusercontent.com/31353252/143941845-337075c7-64a3-46cf-9c5b-91c1877ea479.png">
+
 </div>
 <br/>
 
-####
+#### Features Selection
+<br/>
+We have the possibility to create the model on variables selected automatically according to their relevance.<br/>
 
+```sh
+ model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                    leaning_rate=0.1, max_iter=1000,tolerance=1e-06, 
+                                    feature_selection=TRUE, p_value=0.01)
+```
 
+<br/>
 
+#### Centering reduction
 
+  - centering = FALSE
+<br/>
 
+```sh
+model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
+                                  leaning_rate=0.1,max_iter=1000,tolerance=1e-06, 
+                                  feature_selection=TRUE, p_value=0.01,
+                                  centering = FALSE)
+                                     
+```
+<br/>
 
+#### Elasticnet
+
+  - **iselasticnet=TRUE, rho=0.1, C=0.1**
+ 
+```sh
+model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",leaning_rate=0.1,
+                                   max_iter=1000, tolerance=1e-06, 
+                                   feature_selection=TRUE, p_value=0.01,
+                                   centering = FALSE, 
+                                   iselasticnet=TRUE, rho=0.1, C=0.1)                                   
+```
+
+- si **rho=0 ===> RIDGE**
+- si **rho=1 ===> LASSO**
+
+<br/>
+
+### 2. Multinomiale regression
+
+- For multiclass regression the target variable is coded in binary (One vs ALL).
+
+```sh
+dgrglm.multiclass.fit(formule, data, leaning_rate=0.1, max_iter=3000, tolerance=1e-04, 
+                      random_state=102, centering = FALSE){...}                                   
+```
 
 
 
