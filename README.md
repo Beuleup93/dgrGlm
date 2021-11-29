@@ -7,14 +7,15 @@ logistic regression distributed on the different cores of the user's computer. G
 Here the idea is to allow the user to take advantage of the totality of these computer resources, if of course this can help to make the execution 
 of the calculations faster. Here are the different functionalities of our package that we will present in the following lines:
 
-- Binary logistic regression model in **sequential** mode 
-- Splitting of calculations and data for **parallel** execution
-- Binary logistic regression model in parallel mode
-- Automatic Features selection
-- **Elasticnet** (Ridge and Lasso)
-- Multiple logistic regression 
-- Model comparison
-
+* Binary logistic regression model in **sequential** mode 
+  - Splitting of calculations and data for **parallel** execution
+  - Binary logistic regression model in parallel mode
+  - Comparison of model predictions 
+  - Automatic Features selection
+  - Model Microbenchmark
+  - **Elasticnet** (Ridge and Lasso)
+* Multinomiale logistic regression 
+  - Recoding of the target variable (One vs All)
 
 ### Logistic Regression
 
@@ -22,24 +23,7 @@ Logistic regression is an old and well-known statistical predictive method that 
 framework (multinomial regression in particular, but not only...).It has become popular in recent years in machine learning thanks to "new" computational 
 algorithms (optimization) and powerful libraries.
 The work on regularization makes its use efficient in the context of high dimensional learning (nb. Var. Expl. >> nb. Obsv.). It is related to neural networks 
-(simple perceptron).
-
-The objective of logistic regression is to explain and predict the values of a qualitative variable Y, most often binary, from qualitative and qualitative 
-explanatory variables X = (X1,...,Xp). If we note 0 and 1 the modalities of Y, the logistic model is written: 
-<div align="center">
-<img  width="509" alt="Capture d’écran 2021-11-29 à 09 55 17" src="https://user-images.githubusercontent.com/31353252/143846346-295455c7-c0dc-456e-8532-48658735f050.png">
-</div>
-
-where P(X) is the probability P(Y=1|X=X) and x=(x1,...,xp) is a realization of X=(X1,...,Xp). The log(u/1+u) function relates the probability p(x) to the linear 
-combination of explanatory variables. The coefficients b0,...,bp are estimated by the maximum likelihood method from the observations. 
-
-<div align="center">
-<img width="219" alt="Capture d’écran 2021-11-29 à 09 50 50" src="https://user-images.githubusercontent.com/31353252/143847495-71f03f29-efcb-46e2-ac61-984debaa38ad.png">
-<img width="459" alt="Capture d’écran 2021-11-29 à 11 54 02" src="https://user-images.githubusercontent.com/31353252/143863890-05eb81ce-4211-4d78-894a-28cc13ab71e4.png">
-</div>
-
-With 𝜋, we have a true "score" i.e., a true estimate of the probability of belonging to the target modality (0 ≤ 𝜋 ≤ 1).
-
+(simple perceptron).<br/>
 The objective of this guide is not to explain the mathematical formulas around logistic regression but to give you an overview of our package.
 
 ### Installation and data loading
@@ -76,7 +60,7 @@ In order to test our functions, we will work with the dataset **ionosphere.xlsx*
 <img width="490" alt="Capture d’écran 2021-11-29 à 15 59 47" src="https://user-images.githubusercontent.com/31353252/143900971-229feff3-18f8-4cba-89ce-0efcba432037.png">
 </div>
 
-### Binary Logistic Regression
+### 1. Binary Logistic Regression
 
 We will start by testing the binary logistic regression on our dataset. The variable to be explained is Y and the explicatives variables are a03,...,a34.
 
@@ -221,8 +205,9 @@ perf <- compare_model(probas_mod1=model_minibatch_parallel$probas,
   <img width="1280" alt="Capture d’écran 2021-11-29 à 20 53 59" src="https://user-images.githubusercontent.com/31353252/143941527-09d17943-a01d-4a63-9d5c-0c529d9d1cfa.png">
 </div>
 
+Looking at the three ROC curves, we can assume that the 03 models (Batch, Mini Batch, Online) are similar in terms of predictions. However there is a big difference on the execution time (see Microbenchmark) 
 
-###### Microbenchmark
+#### Microbenchmark
 
 - **Sequential**
 
@@ -305,6 +290,8 @@ In the following we will just play on n and p to increase or decrease the number
 <img width="490" alt="Capture d’écran 2021-11-29 à 20 56 33" src="https://user-images.githubusercontent.com/31353252/143941845-337075c7-64a3-46cf-9c5b-91c1877ea479.png">
 </div>
 <br/>
+
+####
 
 
 
