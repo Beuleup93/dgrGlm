@@ -48,11 +48,6 @@ you can write in your console: **?dgrGlm.fit** to see the documentation or:
 ```sh
 help(dgrGlm.fit)
 ```
-<br/>
-<div align="center">
-<img width="1121" alt="Capture d’écran 2021-11-29 à 15 57 01" src="https://user-images.githubusercontent.com/31353252/143900558-aa1d08e5-04a9-4942-8e0a-f528a779b5b4.png">
-</div>
-<br/>
 
 In order to test our functions, we will work with the dataset **ionosphere.xlsx**. It consists of 351 obervations and 34 variables.
 
@@ -66,6 +61,7 @@ In order to test our functions, we will work with the dataset **ionosphere.xlsx*
 We will start by testing the binary logistic regression on our dataset. The variable to be explained is Y and the explicatives variables are a03,...,a34.
 
 #### General function fit
+
 ```sh
 dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leaning_rate=0.1,
                        max_iter=100, tolerance=1e-04, batch_size=NA,
@@ -82,7 +78,7 @@ This function takes into account several aspects:
 - Elasticnet (**Ridge** for **rho**=0 and **Lasso** for **rho**=1) avec les arguments **C** et **rho**.
 For each algorithm the principle is explained in the report.
 
-###### sequential execution:
+#### sequential execution:
 
 For a sequential execution, specify **comput_mode ='sequentiel'**. <br/>
 
@@ -114,7 +110,9 @@ summary(model_minibatch_seq)
 </div>
 
 - ONLINE MODE 
+
 <br/>
+
 ```sh
 model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leaning_rate=0.1, 
                                max_iter=1000,tolerance=1e-06, batch_size = 1)
@@ -123,6 +121,8 @@ model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leani
 <div align="center">
 <img width="447" alt="Capture d’écran 2021-11-29 à 17 23 34" src="https://user-images.githubusercontent.com/31353252/143915039-fa61b75c-68e3-4b57-991f-c6056f93357a.png">
 </div>
+
+<br/>
 
 In order to test our different models, we have developed an external function, which displays the ROC curves according to the probabilities of each model. This function is in the trace file devtools_history.R
 
@@ -147,7 +147,7 @@ perf <- compare_model(probas_mod1=model_batch_seq$probas,
 Here we see that the Batch model is clearly better than the online model in terms of prediction
 
 
-###### parallel execution:
+#### parallel execution:
 
 The idea of parallel execution is to slice the data according to the number of cores of the machine and to distribute the calculations on these cores. If the user provides a number of cores not available, the program automatically chooses the max-1 cores.
 
@@ -236,8 +236,11 @@ microbenchmark(
 <img width="502" alt="Capture d’écran 2021-11-29 à 20 43 59" src="https://user-images.githubusercontent.com/31353252/143940936-e32bcaa2-bfc5-4142-b41b-1f963db6a398.png">
 </div>
 <br/>
+
 - **Parallel**
+
 <br/>
+
 ```sh
 microbenchmark(
   model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
@@ -250,6 +253,7 @@ microbenchmark(
   unit = "s"
 )
 ```
+
 <br/>
 
 <div align="center">
@@ -262,7 +266,7 @@ According to the results of the Benchmark, there does not seem to be a global ga
 To verify this hypothesis we will generate logistic data manually and play on the number of individuals and variables and test for each case the computation time.
 <br/>
 
-###### Logistic data generation
+#### Logistic data generation
 ```sh
 set.seed(103)
 n <-1000000  # Number of obervations
@@ -281,24 +285,63 @@ The dataset is well generated. It contains 1 million rows<br/>
 <img width="511" alt="Capture d’écran 2021-11-29 à 21 17 44" src="https://user-images.githubusercontent.com/31353252/143944384-21b44e31-8da6-4935-97cf-fca8568056a7.png">
 </div>
 <br/>
-In the following we will just play on n and p to increase or decrease the number of variables and/or individuals. Now, Let's run the Microbenchmark again on the set of 1 million rows and 5 variables.
+In the following we will just play on n and p to increase or decrease the number of variables and/or individuals. Now, Let's run the Microbenchmark again on the set of : 
 
 <br/>
-- **Sequential**
+<br/>
+case n=200 rows and p=400 variables.
+<br/>
+<br/>
+
+- **Sequential** 
+
 <br/>
 <div align="center">
-
+<img width="1221" alt="Capture d’écran 2021-11-30 à 00 26 11" src="https://user-images.githubusercontent.com/31353252/143963478-c1672a86-e575-4ef1-bf8a-d3a65237f14c.png">
 </div>
+
+<br/>
 
 - **Parallel**
-<br/>
 
+<br/>
 <div align="center">
-
+<img width="1233" alt="Capture d’écran 2021-11-30 à 00 26 52" src="https://user-images.githubusercontent.com/31353252/143963520-ec07263c-3fd2-427c-b413-f253bd5b2ebf.png">
 </div>
+
 <br/>
+<br/>
+case n=10000 rows and p=5 variables.
+<br/>
+<br/>
+
+- **Sequential** 
+
+<br/>
+<div align="center">
+<img width="1096" alt="Capture d’écran 2021-11-30 à 00 33 29" src="https://user-images.githubusercontent.com/31353252/143964197-94ef47df-12da-4bcb-af0e-db226e8d5eec.png">
+</div>
+
+<br/>
+
+- **Parallel**
+
+<br/>
+<div align="center">
+<img width="1110" alt="Capture d’écran 2021-11-30 à 00 33 07" src="https://user-images.githubusercontent.com/31353252/143964311-0a0780cf-202e-4434-869b-489220e57dbd.png">
+</div>
+
+<br/>
+After several combinations of n and p, we see that the sequential always wins over the parallel. But this seems logical because of:
+- the number and size of messages exchanged between workers and the master;
+- the size of the task which will be evaluated several times (n iterations);
+- how much data must be sent between the communicating entities;
+- etc.
 
 #### Features Selection
+
+- **feature_selection=TRUE, p_value=0.01**
+
 <br/>
 We have the possibility to create the model on variables selected automatically according to their relevance.<br/>
 
@@ -312,7 +355,7 @@ We have the possibility to create the model on variables selected automatically 
 
 #### Centering reduction
 
-  - centering = FALSE
+  - **centering = FALSE**
 <br/>
 
 ```sh
