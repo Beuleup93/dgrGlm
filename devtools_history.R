@@ -42,7 +42,7 @@ compare_model<- function(probas_mod1, probas_mod2, y){
 
 # CODE DE GENERATION DONNÉES LOGISTIQUE
 set.seed(103)
-n <-10000  # Number of obervations
+n <-100000  # Number of obervations
 p <- 5 # Number of variables
 theta = runif(p+1) # Theta vector
 X <- cbind(1,matrix(rnorm(n*p),n,p))
@@ -90,16 +90,12 @@ perf$toPlo
 
 # SEQUENTIEL EXECUTION TIME
 print(system.time(model_batch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
-                                                leaning_rate=0.1, max_iter=1000,tolerance=1e-06,
-                                                feature_selection=TRUE, p_value=0.01)))
+                                                leaning_rate=0.1, max_iter=1000,tolerance=1e-04)))
 
-print(system.time(model_batch_seq2 <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
-                                                leaning_rate=0.1, max_iter=2000,tolerance=1e-06,
-                                                iselasticnet=TRUE, C=10, rho=1)))
 
 print(system.time(model_minibatch_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",
                                                     batch_size = 100,leaning_rate=0.1,
-                                                    max_iter=2000,tolerance=1e-06)))
+                                                    max_iter=1000,tolerance=1e-04)))
 # FONCTION SUMMARY ET PRINT SURCHARGÉ
 print(model_batch_seq2)
 summary(model_batch_seq2)
@@ -151,12 +147,12 @@ summary(model_online_parallel)
 library(microbenchmark)
 microbenchmark(
   model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                     leaning_rate=0.1, max_iter=1000,tolerance=1e-06),
+                                     leaning_rate=0.1, max_iter=500,tolerance=1e-04),
 
   model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                         leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 10),
+                                         leaning_rate=0.1, max_iter=500,tolerance=1e-04,batch_size = 10),
   model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
-                                      leaning_rate=0.1, max_iter=1000,tolerance=1e-06,batch_size = 1),
+                                      leaning_rate=0.1, max_iter=500,tolerance=1e-04,batch_size = 1),
   times = 1,
   unit = "s"
 )
@@ -182,10 +178,7 @@ perf3$toPlo
 print(system.time(model_batch_parallel <- dgrglm.fit(y~., data = data, mode_compute="parallel",
                                                      leaning_rate=0.1, max_iter=100,tolerance=1e-06, centering = TRUE)))
 
-model_batch_parallel$archive_EctMoy
-predict<- dgrglm.predict(model_batch_seq,new_data, type_pred = 'CLASS')
 
-predict$new_data_classify
 
 print(model_batch_parallel)
 summary(model_batch_parallel)
