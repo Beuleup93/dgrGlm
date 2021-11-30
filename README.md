@@ -240,6 +240,7 @@ microbenchmark(
 - **Parallel**
 
 <br/>
+
 ```sh
 microbenchmark(
   model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
@@ -252,6 +253,7 @@ microbenchmark(
   unit = "s"
 )
 ```
+
 <br/>
 
 <div align="center">
