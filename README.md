@@ -289,8 +289,8 @@ In the following we will just play on n and p to increase or decrease the number
 
 <br/>
 <br/>
-**case n=200 rows and p=400 variables**.
-
+case n=200 rows and p=400 variables.
+<br/>
 <br/>
 
 - **Sequential** 
@@ -311,8 +311,8 @@ In the following we will just play on n and p to increase or decrease the number
 
 <br/>
 <br/>
-**case n=10000 rows and p=5 variables**.
-
+case n=10000 rows and p=5 variables.
+<br/>
 <br/>
 
 - **Sequential** 
