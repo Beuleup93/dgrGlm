@@ -61,6 +61,7 @@ In order to test our functions, we will work with the dataset **ionosphere.xlsx*
 We will start by testing the binary logistic regression on our dataset. The variable to be explained is Y and the explicatives variables are a03,...,a34.
 
 #### General function fit
+
 ```sh
 dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leaning_rate=0.1,
                        max_iter=100, tolerance=1e-04, batch_size=NA,
@@ -77,7 +78,7 @@ This function takes into account several aspects:
 - Elasticnet (**Ridge** for **rho**=0 and **Lasso** for **rho**=1) avec les arguments **C** et **rho**.
 For each algorithm the principle is explained in the report.
 
-###### sequential execution:
+#### sequential execution:
 
 For a sequential execution, specify **comput_mode ='sequentiel'**. <br/>
 
@@ -146,7 +147,7 @@ perf <- compare_model(probas_mod1=model_batch_seq$probas,
 Here we see that the Batch model is clearly better than the online model in terms of prediction
 
 
-###### parallel execution:
+#### parallel execution:
 
 The idea of parallel execution is to slice the data according to the number of cores of the machine and to distribute the calculations on these cores. If the user provides a number of cores not available, the program automatically chooses the max-1 cores.
 
@@ -263,7 +264,7 @@ According to the results of the Benchmark, there does not seem to be a global ga
 To verify this hypothesis we will generate logistic data manually and play on the number of individuals and variables and test for each case the computation time.
 <br/>
 
-###### Logistic data generation
+#### Logistic data generation
 ```sh
 set.seed(103)
 n <-1000000  # Number of obervations
