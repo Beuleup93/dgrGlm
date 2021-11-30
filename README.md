@@ -334,6 +334,9 @@ After several combinations of n and p, we see that the sequential always wins ov
 - etc.
 
 #### Features Selection
+
+- **feature_selection=TRUE, p_value=0.01**
+
 <br/>
 We have the possibility to create the model on variables selected automatically according to their relevance.<br/>
 
@@ -347,7 +350,7 @@ We have the possibility to create the model on variables selected automatically 
 
 #### Centering reduction
 
-  - centering = FALSE
+  - **centering = FALSE**
 <br/>
 
 ```sh
