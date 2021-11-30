@@ -286,7 +286,8 @@ The dataset is well generated. It contains 1 million rows<br/>
 In the following we will just play on n and p to increase or decrease the number of variables and/or individuals. Now, Let's run the Microbenchmark again on the set of : 
 
 <br/>
-case n=200 rows and p=400 variables.
+<br/>
+**case n=200 rows and p=400 variables**.
 
 <br/>
 
@@ -307,7 +308,8 @@ case n=200 rows and p=400 variables.
 </div>
 
 <br/>
-case n=10000 rows and p=5 variables.
+<br/>
+**case n=10000 rows and p=5 variables**.
 
 <br/>
 
