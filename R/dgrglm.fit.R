@@ -58,6 +58,10 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
     stop("'max_iter' must be greater than zero")
   }
 
+  if((is.na(ncores) || ncores <= 0 || ncores >= detectCores()) && (mode_compute == "parallel")){
+    ncores = detectCores()-1
+  }
+
   if (C < 0){
     stop("'C' must be positive")
   }
@@ -75,12 +79,6 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
     if(((batch_size <=  0) || (batch_size > (dim(data)[1])))){
       stop("'Batch size' must be between 1 and length of data ")
     }
-  }
-
-  if(is.na(ncores) || ncores<=0 || ncores>=detectCores()){
-    ncores = detectCores()-1
-  }else{
-    stop('enter a correct value for number of ncore')
   }
 
   # COLUMN MATCHING CONTROL BETWEEN DATA AND FORMULA
