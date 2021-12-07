@@ -71,10 +71,10 @@ dgrglm.fit <- function(formule, data, ncores=NA, mode_compute="parallel", leanin
 
 This function takes into account several aspects:
 - sequential execution with **mode_compute="sequentiel"**
-- parallel execution with **ncores=NA, mode_compute="parallel"**
+- parallel execution with for example **ncores=4, and mode_compute="parallel"**
 - Execution in Batch, Mini Batch and Online modes with **batch_size=NA**
-- Centering reduction of explanatory variables with **centering = FALSE**
-- Selection of variables by playing on the arguments **feature_selection=FALSE, p_value=0.01**
+- Centering reduction of explanatory variables with **centering = TRUE**
+- Selection of variables by playing on the arguments **feature_selection=TRUE, p_value=0.01**
 - Elasticnet (**Ridge** for **rho**=0 and **Lasso** for **rho**=1) avec les arguments **C** et **rho**.
 For each algorithm the principle is explained in the report.
 
