@@ -52,7 +52,7 @@ help(dgrGlm.fit)
 In order to test our functions, we will work with the dataset **ionosphere.xlsx**. It consists of 351 obervations and 34 variables.
 
 <div align="center">
-<img width="490" alt="Capture d’écran 2021-11-29 à 15 59 47" src="https://user-images.githubusercontent.com/31353252/143900971-229feff3-18f8-4cba-89ce-0efcba432037.png">
+<img width="490" alt="Capture d’écran 2021-11-29 à 15 59 47" src="https://user-images.githubusercontent.com/31353252/143900971-229feff3-18f8-4cba-89ce-0efcba432037.png">
 </div>
 <br/>
 
@@ -94,7 +94,7 @@ summary(model_batch_seq)
 We have overloaded the **print** and **summary** methods for a display adapted to our objects returned by **fit**.
 
 <div align="center">
-  <img width="429" alt="Capture d’écran 2021-11-29 à 16 57 01" src="https://user-images.githubusercontent.com/31353252/143910912-c1033fa8-c447-4452-9667-3c7932eb34f2.png">
+  <img width="429" alt="Capture d’écran 2021-11-29 à 16 57 01" src="https://user-images.githubusercontent.com/31353252/143910912-c1033fa8-c447-4452-9667-3c7932eb34f2.png">
 </div>
 
 - MINI BATCH MODE 
@@ -106,7 +106,7 @@ summary(model_minibatch_seq)
 ```
 <br/>
 <div align="center">
-<img width="436" alt="Capture d’écran 2021-11-29 à 16 56 52" src="https://user-images.githubusercontent.com/31353252/143910933-758993f1-7073-4bcf-894a-ffa2f9f6943c.png">
+<img width="436" alt="Capture d’écran 2021-11-29 à 16 56 52" src="https://user-images.githubusercontent.com/31353252/143910933-758993f1-7073-4bcf-894a-ffa2f9f6943c.png">
 </div>
 
 - ONLINE MODE 
@@ -119,7 +119,7 @@ model_online_seq <- dgrglm.fit(y~., data = data, mode_compute="sequentiel",leani
 ```
 <br/>
 <div align="center">
-<img width="447" alt="Capture d’écran 2021-11-29 à 17 23 34" src="https://user-images.githubusercontent.com/31353252/143915039-fa61b75c-68e3-4b57-991f-c6056f93357a.png">
+<img width="447" alt="Capture d’écran 2021-11-29 à 17 23 34" src="https://user-images.githubusercontent.com/31353252/143915039-fa61b75c-68e3-4b57-991f-c6056f93357a.png">
 </div>
 
 <br/>
@@ -132,7 +132,7 @@ perf <- compare_model(probas_mod1=model_batch_seq$probas,
                       y=model_minibatch_seq$y_val[,1])
 ```
 <div align="center">
-<img width="1279" alt="Capture d’écran 2021-11-29 à 17 06 18" src="https://user-images.githubusercontent.com/31353252/143912390-0fb07683-e8dc-4d2c-845a-f03821bf73c8.png">
+<img width="1279" alt="Capture d’écran 2021-11-29 à 17 06 18" src="https://user-images.githubusercontent.com/31353252/143912390-0fb07683-e8dc-4d2c-845a-f03821bf73c8.png">
 </div>
 In terms of their ROC curves, the two models are roughly similar in terms of predictions. In terms of their ROC curves, the two models are roughly similar in terms of predictions. Nevertheless model 2 is better.
 
@@ -142,7 +142,7 @@ perf <- compare_model(probas_mod1=model_batch_seq$probas,
                       y=model_online_seq$y_val[,1])
 ```
 <div align="center">
-<img width="1280" alt="Capture d’écran 2021-11-29 à 17 36 04" src="https://user-images.githubusercontent.com/31353252/143916401-4c9f134d-4b78-4c34-8522-a0b393fee4fe.png">
+<img width="1280" alt="Capture d’écran 2021-11-29 à 17 36 04" src="https://user-images.githubusercontent.com/31353252/143916401-4c9f134d-4b78-4c34-8522-a0b393fee4fe.png">
 </div><br/>
 Here we see that the Batch model is clearly better than the online model in terms of prediction
 
@@ -160,7 +160,7 @@ model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="par
                                    leaning_rate=0.1, max_iter=1000,tolerance=1e-06)
 ```
 <div align="center">
-<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
+<img width="435" alt="Capture d’écran 2021-11-29 à 17 56 28" src="https://user-images.githubusercontent.com/31353252/143918871-240b6411-43b7-48fe-97ea-4c96d531cc57.png">
 </div>
 
 - MODE MINI BATCH
@@ -172,7 +172,7 @@ model_minibatch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute=
 ```
    
 <div align="center">
-<img width="423" alt="Capture d’écran 2021-11-29 à 20 45 30" src="https://user-images.githubusercontent.com/31353252/143940909-8c1747ed-abf1-4131-b46d-9c99262e6fb5.png">
+<img width="423" alt="Capture d’écran 2021-11-29 à 20 45 30" src="https://user-images.githubusercontent.com/31353252/143940909-8c1747ed-abf1-4131-b46d-9c99262e6fb5.png">
 </div>
 
 - MODE ONLINE
@@ -185,7 +185,7 @@ model_online_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="pa
 ```
    
 <div align="center">
-<img width="430" alt="Capture d’écran 2021-11-29 à 20 00 22" src="https://user-images.githubusercontent.com/31353252/143935316-66356663-d017-43d6-a2fb-d64150d7af09.png">
+<img width="430" alt="Capture d’écran 2021-11-29 à 20 00 22" src="https://user-images.githubusercontent.com/31353252/143935316-66356663-d017-43d6-a2fb-d64150d7af09.png">
 </div>
 
 
@@ -207,7 +207,7 @@ perf <- compare_model(probas_mod1=model_minibatch_parallel$probas,
 <div>
   <img width="1280" alt="1" src="https://user-images.githubusercontent.com/31353252/143941004-2a5c1f76-550e-4dc9-8013-3a7ea91e7abf.png">
   <img width="1280" alt="2" src="https://user-images.githubusercontent.com/31353252/143941017-35fe5f06-8a72-4915-b891-46417aa0734a.png">
-  <img width="1280" alt="Capture d’écran 2021-11-29 à 20 53 59" src="https://user-images.githubusercontent.com/31353252/143941527-09d17943-a01d-4a63-9d5c-0c529d9d1cfa.png">
+  <img width="1280" alt="Capture d’écran 2021-11-29 à 20 53 59" src="https://user-images.githubusercontent.com/31353252/143941527-09d17943-a01d-4a63-9d5c-0c529d9d1cfa.png">
 </div>
 
 Looking at the three ROC curves, we can assume that the 03 models (Batch, Mini Batch, Online) are similar in terms of predictions. However there is a big difference on the execution time (see Microbenchmark).
@@ -233,7 +233,7 @@ microbenchmark(
 <br/>
 
 <div align="center">
-<img width="502" alt="Capture d’écran 2021-11-29 à 20 43 59" src="https://user-images.githubusercontent.com/31353252/143940936-e32bcaa2-bfc5-4142-b41b-1f963db6a398.png">
+<img width="533" alt="Capture d’écran 2021-12-07 à 21 02 41" src="https://user-images.githubusercontent.com/31353252/145106552-60fc48e1-438b-4438-ad05-4547aa8f08a7.png">
 </div>
 <br/>
 
@@ -257,7 +257,7 @@ microbenchmark(
 <br/>
 
 <div align="center">
-<img width="490" alt="Capture d’écran 2021-11-29 à 20 56 33" src="https://user-images.githubusercontent.com/31353252/143941845-337075c7-64a3-46cf-9c5b-91c1877ea479.png">
+<img width="495" alt="Capture d’écran 2021-12-07 à 21 07 04" src="https://user-images.githubusercontent.com/31353252/145106572-92f09e8c-4702-47de-a4e7-1d327ebdbb81.png">
 </div>
 <br/>
 We implemented logistic regression in sequential and parallel mode. The idea was to see if using all the computational cores a machine has for the execution of the algorithm could increase the speed or not.
@@ -282,7 +282,7 @@ data$V1 <- NULL # delete colomn de biais. It will be created when fit is called
 The dataset is well generated. It contains 1 million rows<br/>
 
 <div align="center">
-<img width="511" alt="Capture d’écran 2021-11-29 à 21 17 44" src="https://user-images.githubusercontent.com/31353252/143944384-21b44e31-8da6-4935-97cf-fca8568056a7.png">
+<img width="511" alt="Capture d’écran 2021-11-29 à 21 17 44" src="https://user-images.githubusercontent.com/31353252/143944384-21b44e31-8da6-4935-97cf-fca8568056a7.png">
 </div>
 <br/>
 In the following we will just play on n and p to increase or decrease the number of variables and/or individuals. Now, Let's run the Microbenchmark again on the set of : 
@@ -297,7 +297,7 @@ case n=200 rows and p=400 variables.
 
 <br/>
 <div align="center">
-<img width="1221" alt="Capture d’écran 2021-11-30 à 00 26 11" src="https://user-images.githubusercontent.com/31353252/143963478-c1672a86-e575-4ef1-bf8a-d3a65237f14c.png">
+<img width="1221" alt="Capture d’écran 2021-11-30 à 00 26 11" src="https://user-images.githubusercontent.com/31353252/143963478-c1672a86-e575-4ef1-bf8a-d3a65237f14c.png">
 </div>
 
 <br/>
@@ -306,7 +306,7 @@ case n=200 rows and p=400 variables.
 
 <br/>
 <div align="center">
-<img width="1233" alt="Capture d’écran 2021-11-30 à 00 26 52" src="https://user-images.githubusercontent.com/31353252/143963520-ec07263c-3fd2-427c-b413-f253bd5b2ebf.png">
+<img width="1233" alt="Capture d’écran 2021-11-30 à 00 26 52" src="https://user-images.githubusercontent.com/31353252/143963520-ec07263c-3fd2-427c-b413-f253bd5b2ebf.png">
 </div>
 
 <br/>
@@ -319,7 +319,7 @@ case n=10000 rows and p=5 variables.
 
 <br/>
 <div align="center">
-<img width="1096" alt="Capture d’écran 2021-11-30 à 00 33 29" src="https://user-images.githubusercontent.com/31353252/143964197-94ef47df-12da-4bcb-af0e-db226e8d5eec.png">
+<img width="1096" alt="Capture d’écran 2021-11-30 à 00 33 29" src="https://user-images.githubusercontent.com/31353252/143964197-94ef47df-12da-4bcb-af0e-db226e8d5eec.png">
 </div>
 
 <br/>
@@ -328,7 +328,7 @@ case n=10000 rows and p=5 variables.
 
 <br/>
 <div align="center">
-<img width="1110" alt="Capture d’écran 2021-11-30 à 00 33 07" src="https://user-images.githubusercontent.com/31353252/143964311-0a0780cf-202e-4434-869b-489220e57dbd.png">
+<img width="1110" alt="Capture d’écran 2021-11-30 à 00 33 07" src="https://user-images.githubusercontent.com/31353252/143964311-0a0780cf-202e-4434-869b-489220e57dbd.png">
 </div>
 
 <br/>
