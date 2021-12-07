@@ -355,14 +355,14 @@ We have the possibility to create the model on variables selected automatically 
 
 #### Centering reduction
 
-  - **centering = FALSE**
+  - **centering = TRUE**
 <br/>
 
 ```sh
 model_batch_parallel <- dgrglm.fit(y~., data = data, ncores=3, mode_compute="parallel",
                                   leaning_rate=0.1,max_iter=1000,tolerance=1e-06, 
                                   feature_selection=TRUE, p_value=0.01,
-                                  centering = FALSE)
+                                  centering = TRUE)
                                      
 ```
 <br/>
