@@ -19,7 +19,9 @@ Imports:
     magrittr,
     numDeriv,
     parallel,
+    PCAmixdata,
     plyr,
     rlang,
     stats,
+    tidytable,
     utils

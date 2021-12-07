@@ -11,6 +11,8 @@ usethis::use_package("utils")
 usethis::use_package("plotROC")
 usethis::use_package("numDeriv")
 usethis::use_package("klaR")
+usethis::use_package("PCAmixdata")
+usethis::use_package("tidytable")
 
 library(tidyverse)
 library(plotROC)

@@ -137,8 +137,6 @@ dgrglm.multiclass.fit <- function(formule, data, leaning_rate=0.1, max_iter=3000
       }
     }
   }
-
-  instance$accuracy <- accuracy/length(X)
   instance$df_theta <- df_theta
   class(instance) <- "ModeleMultiClass"
   return(instance)

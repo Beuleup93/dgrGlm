@@ -2,7 +2,7 @@
 % Please edit documentation in R/recodage.quali.R
 \name{recodage.quali}
 \alias{recodage.quali}
-\title{Recoding variable}
+\title{Recoding target variable}
 \usage{
 recodage.quali(y)
 }
@@ -13,8 +13,11 @@ recodage.quali(y)
 a dataframe where each modality represents a binary column
 }
 \description{
-Recoding variable
+Recoding target variable
 }
 \examples{
 recodage.quali(iris$Species)
+}
+\author{
+Saliou NDAO
 }
